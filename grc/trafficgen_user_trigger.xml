@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<block>
+	<name>User Trigger (CPP)</name>
+	<key>trafficgen_user_trigger</key>
+	<category>[trafficgen]</category>
+	<import>import trafficgen</import>
+	<make>trafficgen.user_trigger($state)</make>
+	<callback>set_state($state)</callback>
+	<param>
+		<name>State</name>
+		<key>state</key>
+		<value>True</value>
+		<type>bool</type>
+	</param>
+	<source>
+		<name>trigger</name>
+		<type>message</type>
+	</source>
+</block>

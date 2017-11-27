@@ -1,0 +1,30 @@
+INCLUDE(FindPkgConfig)
+PKG_CHECK_MODULES(PC_TRAFFICGEN trafficgen)
+
+FIND_PATH(
+    TRAFFICGEN_INCLUDE_DIRS
+    NAMES trafficgen/api.h
+    HINTS $ENV{TRAFFICGEN_DIR}/include
+        ${PC_TRAFFICGEN_INCLUDEDIR}
+    PATHS ${CMAKE_INSTALL_PREFIX}/include
+          /usr/local/include
+          /usr/include
+)
+
+FIND_LIBRARY(
+    TRAFFICGEN_LIBRARIES
+    NAMES gnuradio-trafficgen
+    HINTS $ENV{TRAFFICGEN_DIR}/lib
+        ${PC_TRAFFICGEN_LIBDIR}
+    PATHS ${CMAKE_INSTALL_PREFIX}/lib
+          ${CMAKE_INSTALL_PREFIX}/lib64
+          /usr/local/lib
+          /usr/local/lib64
+          /usr/lib
+          /usr/lib64
+)
+
+INCLUDE(FindPackageHandleStandardArgs)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(TRAFFICGEN DEFAULT_MSG TRAFFICGEN_LIBRARIES TRAFFICGEN_INCLUDE_DIRS)
+MARK_AS_ADVANCED(TRAFFICGEN_LIBRARIES TRAFFICGEN_INCLUDE_DIRS)
+

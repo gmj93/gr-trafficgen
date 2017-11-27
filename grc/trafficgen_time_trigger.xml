@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<block>
+	<name>Time Trigger</name>
+	<key>trafficgen_time_trigger</key>
+	<category>[trafficgen]</category>
+	<import>import trafficgen</import>
+	<make>trafficgen.time_trigger($initial_state, $active_time, $inactive_time)</make>
+	<callback>set_active_time($active_time)</callback>
+	<callback>set_inactive_time($inactive_time)</callback>
+	<param>
+		<name>Initial State</name>
+		<key>initial_state</key>
+		<value>True</value>
+		<type>enum</type>
+		<option>
+			<name>True</name>
+			<key>True</key>
+		</option>
+		<option>
+			<name>False</name>
+			<key>False</key>
+		</option>
+	</param>
+	<param>
+		<name>Active Time (ms)</name>
+		<key>active_time</key>
+		<value>1000</value>
+		<type>real</type>
+	</param>
+	<param>
+		<name>Inactive Time (ms)</name>
+		<key>inactive_time</key>
+		<value>1000</value>
+		<type>real</type>
+	</param>
+	<source>
+		<name>trigger</name>
+		<type>message</type>
+  	</source>
+</block>
