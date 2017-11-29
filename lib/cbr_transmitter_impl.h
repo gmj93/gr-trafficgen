@@ -23,6 +23,12 @@
 
 #include <trafficgen/cbr_transmitter.h>
 #include <gnuradio/thread/thread.h>
+#include <trafficgen/trafficgen_common.h>
+#include <boost/random/variate_generator.hpp>
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/poisson_distribution.hpp>
+#include <boost/random/normal_distribution.hpp>
+#include <boost/random/uniform_int.hpp>
 
 namespace gr {
   	namespace trafficgen {
@@ -30,20 +36,44 @@ namespace gr {
 		class cbr_transmitter_impl : public cbr_transmitter	{
 
 			private:
-
+				boost::shared_ptr<gr::thread::thread> d_thread;
+				boost::condition_variable d_run_packet_creation;
+				boost::mutex d_mutex_condition;
+				bool d_create_packets;
+				bool d_finished;
 	  			bool d_trigger_start;
 	  			bool d_trigger_stop;
-	  			uint8_t d_content;
+	  			uint32_t d_packet_size;
+	  			float d_packet_interval;
+	  			int d_constant_value;
+	  			trafficgen_content_t d_content_type;
+	  			trafficgen_random_distribution_t d_distribution_type;
+	  			int d_dist_min;
+	  			int d_dist_max;
+	  			int d_dist_mean;
+	  			float d_dist_std;
 
 	  			pmt::pmt_t d_trigger_start_in_port;
 	  			pmt::pmt_t d_trigger_stop_in_port;
-	  			pmt::pmt_t d_content_in_port;
+	  			pmt::pmt_t d_pdu_out_port;
+
+	  			boost::mt19937 d_rng;
+	  			boost::shared_ptr<boost::variate_generator <boost::mt19937, boost::uniform_int<>>> d_variate_uniform;
+	  			boost::shared_ptr<boost::variate_generator <boost::mt19937, boost::normal_distribution<>>> d_variate_normal;
+	  			boost::shared_ptr<boost::variate_generator <boost::mt19937, boost::poisson_distribution<>>> d_variate_poisson;
+
+	  			void run();
 
 			public:
 				cbr_transmitter_impl(uint32_t packet_size,
-									 double packet_interval,
-									 double start_time,
-									 double stop_time);
+									 float packet_interval,
+									 trafficgen_content_t content_type,
+									 int constant_value,
+									 trafficgen_random_distribution_t distribution_type,
+									 int distribution_min,
+									 int distribution_max,
+									 int distribution_mean,
+									 float distribution_std);
 
 				~cbr_transmitter_impl();
 
@@ -52,12 +82,14 @@ namespace gr {
 
 				void handle_trigger_stop(pmt::pmt_t msg);
 
-				void forecast (int noutput_items, gr_vector_int &ninput_items_required);
+				void set_trigger(bool *trigger, pmt::pmt_t msg);
 
-				int general_work(int noutput_items,
-								 gr_vector_int &ninput_items,
-								 gr_vector_const_void_star &input_items,
-								 gr_vector_void_star &output_items);
+				float get_random_value(trafficgen_random_distribution_t distribution);
+
+				void setup_random_number_generators();
+
+				bool start();
+				bool stop();
 		};
 	} // namespace trafficgen
 } // namespace gr

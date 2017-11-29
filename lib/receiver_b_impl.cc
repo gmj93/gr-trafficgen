@@ -23,7 +23,7 @@
 #endif
 
 #include <gnuradio/io_signature.h>
-#include "common/trafficgen.h"
+#include <trafficgen/trafficgen_common.h>
 #include "receiver_b_impl.h"
 #include <cstdio>
 
@@ -45,8 +45,8 @@ namespace gr {
 							 gr::io_signature::make(1, 1, sizeof(uint8_t)),
 							 gr::io_signature::make(0, 0, 0)){
 
-	  			message_port_register_in(MSG_PORT_ID);
-	  			set_msg_handler(MSG_PORT_ID, boost::bind(&receiver_b_impl::message_handler, this, _1));
+	  			message_port_register_in(pmt::mp("pdu"));
+	  			set_msg_handler(pmt::mp("pdu"), boost::bind(&receiver_b_impl::message_handler, this, _1));
 
 	  		}
 

@@ -22,52 +22,72 @@
 #include "config.h"
 #endif
 
+#include <cstdio>
 #include <gnuradio/io_signature.h>
 #include "cbr_transmitter_impl.h"
-#include "common/packet_format.h"
-#include "common/trafficgen.h"
-#include <cstdio>
+#include <trafficgen/trafficgen_common.h>
 
 namespace gr {
 	namespace trafficgen {
 
 		cbr_transmitter::sptr
-		cbr_transmitter::make (
-			uint32_t packet_size,
-			double packet_interval,
-			double start_time,
-			double stop_time
-		){
+		cbr_transmitter::make (uint32_t packet_size,
+							   float packet_interval,
+							   trafficgen_content_t content_type,
+							   int constant_value,
+							   trafficgen_random_distribution_t distribution_type,
+							   int distribution_min,
+							   int distribution_max,
+							   int distribution_mean,
+							   float distribution_std){
 
-  			return gnuradio::get_initial_sptr (
-  				new cbr_transmitter_impl(
-  					packet_size,
-  					packet_interval,
-  					start_time,
-  					stop_time
+			return gnuradio::get_initial_sptr (
+				new cbr_transmitter_impl(
+					packet_size,
+					packet_interval,
+					content_type,
+					constant_value,
+					distribution_type,
+					distribution_min,
+					distribution_max,
+					distribution_mean,
+					distribution_std
 				)
 			);
 		}
 
-		/*
-		 * The private constructor
-		 */
+		/* Constructor */
 		cbr_transmitter_impl::cbr_transmitter_impl(uint32_t packet_size,
-												   double packet_interval,
-												   double start_time,
-												   double stop_time)
-	  		: gr::block("cbr_transmitter",
-			  gr::io_signature::make3(0, 3, sizeof(int), sizeof(int), sizeof(uint8_t)),
-			  gr::io_signature::make(0, 1, sizeof(uint8_t))){	// TODO Change to 1, 1 later...
+												   float packet_interval,
+												   trafficgen_content_t content_type,
+												   int constant_value,
+												   trafficgen_random_distribution_t distribution_type,
+												   int distribution_min,
+												   int distribution_max,
+												   int distribution_mean,
+												   float distribution_std)
+			: gr::block("cbr_transmitter", gr::io_signature::make(0, 0, 0), gr::io_signature::make(0, 0, 0)),
+			  d_finished(false),
+			  d_trigger_start(true),
+			  d_trigger_stop(false),
+			  d_packet_size(packet_size),
+			  d_packet_interval(packet_interval),
+			  d_content_type(content_type),
+			  d_constant_value(constant_value),
+			  d_distribution_type(distribution_type),
+			  d_dist_min(distribution_min),
+			  d_dist_max(distribution_max),
+			  d_dist_mean(distribution_mean),
+			  d_dist_std(distribution_std),
+			  d_rng(){
 
 			d_trigger_start_in_port = pmt::mp("Trigger Start");
 			d_trigger_stop_in_port = pmt::mp("Trigger Stop");
-			d_content_in_port = pmt::mp("Content");
+			d_pdu_out_port = pmt::mp("pdu");
 
 			message_port_register_in(d_trigger_start_in_port);
 			message_port_register_in(d_trigger_stop_in_port);
-			// message_port_register_in(d_content_in_port);
-			message_port_register_out(MSG_PORT_ID);
+			message_port_register_out(d_pdu_out_port);
 
 			set_msg_handler(d_trigger_start_in_port,
 							boost::bind(&cbr_transmitter_impl::handle_trigger_start, this, _1));
@@ -75,65 +95,115 @@ namespace gr {
 			set_msg_handler(d_trigger_stop_in_port,
 							boost::bind(&cbr_transmitter_impl::handle_trigger_stop, this, _1));
 
-			std::cout << gr::block::message_ports_in() << std::endl;
-			std::cout << gr::block::message_ports_out() << std::endl;
-  		}
+			setup_random_number_generators();
+		}
 
-		/*
-		 * Our virtual destructor.
-		 */
+		/* Destructor. */
 		cbr_transmitter_impl::~cbr_transmitter_impl(){}
 
 		void cbr_transmitter_impl::handle_trigger_start(pmt::pmt_t msg){
 
-			std::cout << "trigger_start: " << std::endl;
-			pmt::print(msg);
+			set_trigger(&d_trigger_start, msg);
 		}
 
 		void cbr_transmitter_impl::handle_trigger_stop(pmt::pmt_t msg){
 
-			std::cout << "trigger_stop: " << std::endl;
-			pmt::print(msg);
+			set_trigger(&d_trigger_stop, msg);
 		}
 
-		void cbr_transmitter_impl::forecast (int noutput_items, gr_vector_int &ninput_items_required) {
-			/* <+forecast+> e.g. ninput_items_required[0] = noutput_items */
+		void cbr_transmitter_impl::set_trigger(bool *trigger, pmt::pmt_t msg){
+
+			*trigger = (msg == pmt::PMT_T ? true : false);
+
+			if (d_trigger_start && !d_trigger_stop){
+
+				d_run_packet_creation.notify_one();
+				d_create_packets = true;
+
+			} else {
+
+				d_create_packets = false;
+			}
 		}
 
-		int	cbr_transmitter_impl::general_work (int noutput_items,
-						   						gr_vector_int &ninput_items,
-												gr_vector_const_void_star &input_items,
-												gr_vector_void_star &output_items){
+		float cbr_transmitter_impl::get_random_value(trafficgen_random_distribution_t distribution){
 
-			const int *triggerStart = (const int *) input_items[0];
-			const int *triggerStop = (const int *) input_items[1];
-			const uint8_t *content = (const uint8_t *) input_items[2];
-
-			printf("noutput_items: %d\n", noutput_items);
-			printf("ninput_items: %d\n", ninput_items);
-			printf("triggerStart: %d\n", *triggerStart);
-			printf("triggerStop: %d\n", *triggerStop);
-			printf("content: %d\n", *content);
-
-			uint8_t *out = (uint8_t *) output_items[0];
-
-			*out = 5;
-
-			message_port_pub(MSG_PORT_ID, pmt::from_long(*out));
-
-			noutput_items = 1;
-
-			usleep(10000);
-
-			// // Do <+signal processing+>
-			// // Tell runtime system how many input items we consumed on
-			// // each input stream.
-			// consume_each (noutput_items);
-
-			// Tell runtime system how many output items we produced.
-			return noutput_items;
+			switch(distribution){
+				case DIST_UNIFORM:
+					return d_variate_uniform->operator()();
+				case DIST_GAUSSIAN:
+					return d_variate_normal->operator()();
+				case DIST_POISSON:
+					return d_variate_poisson->operator()();
+				default:
+					throw std::runtime_error("Unknown ditribution defined");
+			}
 		}
 
-  	} /* namespace trafficgen */
+		void cbr_transmitter_impl::setup_random_number_generators(){
+
+			boost::uniform_int<> ud(d_dist_min, d_dist_max);
+			d_variate_uniform = boost::shared_ptr<boost::variate_generator<boost::mt19937, boost::uniform_int<>>>(
+				new boost::variate_generator <boost::mt19937, boost::uniform_int<>>(d_rng, ud));
+
+			boost::normal_distribution<> nd(d_dist_mean, d_dist_std);
+			d_variate_normal = boost::shared_ptr<boost::variate_generator<boost::mt19937, boost::normal_distribution<>>>(
+				new boost::variate_generator <boost::mt19937, boost::normal_distribution<>>(d_rng, nd));
+
+			boost::poisson_distribution<> pd(d_dist_mean);
+			d_variate_poisson = boost::shared_ptr< boost::variate_generator<boost::mt19937, boost::poisson_distribution<>>>(
+				new boost::variate_generator <boost::mt19937, boost::poisson_distribution<>>(d_rng, pd));
+		}
+
+		bool cbr_transmitter_impl::start(){
+
+			d_finished = false;
+			d_thread = boost::shared_ptr<gr::thread::thread> 
+			(new gr::thread::thread(boost::bind(&cbr_transmitter_impl::run, this)));
+
+			return block::start();
+		}
+
+		bool cbr_transmitter_impl::stop(){
+
+			d_finished = true;
+			d_run_packet_creation.notify_one();
+			d_thread->interrupt();
+			d_thread->join();
+
+			return block::stop();
+		}
+
+		void cbr_transmitter_impl::run(){
+
+			while(!d_finished){
+
+				std::cout << "------ CBR DEBUG ----------" << std::endl;
+				std::cout << "packet_size: " << d_packet_size << std::endl;
+				std::cout << "packet_interval: " << d_packet_interval << std::endl;
+				std::cout << "content_type: " << d_content_type << std::endl;
+				std::cout << "constant_value: " << d_constant_value << std::endl;
+				std::cout << "distribution_type: " << d_distribution_type << std::endl;
+				std::cout << "trigger_start: " << d_trigger_start << std::endl;
+				std::cout << "trigger_stop: " << d_trigger_stop << std::endl;
+				std::cout << "get_random_value (uniform): " << get_random_value(DIST_UNIFORM) << std::endl;
+				std::cout << "get_random_value (gaussian): " << get_random_value(DIST_GAUSSIAN) << std::endl;
+				std::cout << "get_random_value (poisson): " << get_random_value(DIST_POISSON) << std::endl;
+				std::cout << "------ CBR DEBUG ----------" << std::endl;
+
+				boost::this_thread::sleep(boost::posix_time::milliseconds(d_packet_interval));
+
+				if (!d_create_packets) {
+
+					boost::mutex::scoped_lock lock(d_mutex_condition);
+					d_run_packet_creation.wait(lock);	
+				}
+
+				if (d_finished){
+					return;
+				}
+			}
+		}
+	} /* namespace trafficgen */
 } /* namespace gr */
 

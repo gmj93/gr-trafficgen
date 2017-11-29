@@ -4,68 +4,126 @@
 	<key>trafficgen_cbr_transmitter</key>
 	<category>[trafficgen]</category>
 	<import>import trafficgen</import>
-	<make>trafficgen.cbr_transmitter($packet_size, $packet_interval, $start_time, $stop_time)</make>
-  	<!-- Make one 'param' node for every Parameter you want settable from the GUI.
-		   Sub-nodes:
-	   		* name
-	   		* key (makes the value accessible as $keyname, e.g. in the make node)
-	   		* type -->
+	<make>trafficgen.cbr_transmitter($packet_size,
+		$packet_interval,
+		$content_type,
+		$constant_value,
+		$distribution_type,
+		$distribution_min,
+		$distribution_max,
+		$distribution_mean,
+		$distribution_std)</make>
 	<param>
 		<name>Packet Size</name>
 		<key>packet_size</key>
 		<value>1500</value>
 		<type>int</type>
 	</param>
-
 	<param>
-		<name>Packet Interval</name>
+		<name>Packet Interval (ms)</name>
 		<key>packet_interval</key>
-		<value>1</value>
+		<value>1000</value>
 		<type>float</type>
 	</param>
-
 	<param>
-		<name>Start Time</name>
-		<key>start_time</key>
-		<value>0</value>
-		<type>float</type>
+		<name>Content Type</name>
+		<key>content_type</key>
+		<type>enum</type>
+		<option>
+			<name>Constant</name>
+			<key>trafficgen.CONTENT_CONSTANT</key>
+			<opt>hide_cv:</opt>
+			<opt>hide_dist:all</opt>
+		</option>
+		<option>
+			<name>Random</name>
+			<key>trafficgen.CONTENT_RANDOM</key>
+			<opt>hide_cv:all</opt>
+			<opt>hide_dist:</opt>
+		</option>
+		<option>
+			<name>Sequential</name>
+			<key>trafficgen.CONTENT_SEQUENTIAL</key>
+			<opt>hide_cv:all</opt>
+			<opt>hide_dist:all</opt>
+		</option>
 	</param>
-
 	<param>
-		<name>Stop Time</name>
-		<key>stop_time</key>
+		<name>Constant Value</name>
+		<key>constant_value</key>
 		<value>0</value>
-		<type>float</type>
+		<type>int</type>
+		<hide>$content_type.hide_cv</hide>
 	</param>
-
-  	<!-- Make one 'sink' node per input. Sub-nodes:
-			* name (an identifier for the GUI)
-			* type
-			* vlen
-			* optional (set to 1 for optional inputs) -->
+	<param>
+		<name>Distribution</name>
+		<key>distribution_type</key>
+		<type>enum</type>
+		<hide>$content_type.hide_dist</hide>
+		<option>
+			<name>Uniform</name>
+			<key>trafficgen.DIST_UNIFORM</key>
+<!-- 			<opt>hide_min:</opt>
+			<opt>hide_max:</opt>
+			<opt>hide_mean:all</opt>
+			<opt>hide_std:all</opt> -->
+		</option>
+		<option>
+			<name>Gaussian</name>
+			<key>trafficgen.DIST_GAUSSIAN</key>
+			<!-- <opt>hide_min:all</opt>
+			<opt>hide_max:all</opt>
+			<opt>hide_mean:</opt>
+			<opt>hide_std:</opt> -->
+		</option>
+		<option>
+			<name>Poisson</name>
+			<key>trafficgen.DIST_POISSON</key>
+<!-- 			<opt>hide_min:all</opt>
+			<opt>hide_max:all</opt>
+			<opt>hide_mean:</opt>
+			<opt>hide_std:all</opt> -->
+		</option>
+	</param>
+	<param>
+		<name>Minimum</name>
+		<key>distribution_min</key>
+		<value>0</value>
+		<type>int</type>
+		<hide>#if (($content_type() == 'trafficgen.CONTENT_RANDOM' or $content_type() == 'trafficgen.CONTENT_SEQUENTIAL') and ($distribution_type() == 'trafficgen.DIST_UNIFORM')) then 'none' else 'all'#</hide>
+	</param>
+	<param>
+		<name>Maximum</name>
+		<key>distribution_max</key>
+		<value>254</value>
+		<type>int</type>
+		<hide>#if (($content_type() == 'trafficgen.CONTENT_RANDOM' or $content_type() == 'trafficgen.CONTENT_SEQUENTIAL') and ($distribution_type() == 'trafficgen.DIST_UNIFORM')) then 'none' else 'all'#</hide>
+	</param>
+	<param>
+		<name>Mean</name>
+		<key>distribution_mean</key>
+		<value>127</value>
+		<type>int</type>
+		<hide>#if ($content_type() == 'trafficgen.CONTENT_RANDOM' and ($distribution_type() == 'trafficgen.DIST_GAUSSIAN' or $distribution_type() == 'trafficgen.DIST_POISSON')) then 'none' else 'all'#</hide>
+	</param>
+	<param>
+		<name>Std</name>
+		<key>distribution_std</key>
+		<value>42</value>
+		<type>float</type>
+		<hide>#if ($content_type() == 'trafficgen.CONTENT_RANDOM' and $distribution_type() == 'trafficgen.DIST_GAUSSIAN') then 'none' else 'all'#</hide>
+	</param>
+	<check>$packet_size &gt;=16 and $packet_size &lt;=534773760</check>
 	<sink>
 		<name>Trigger Start</name>
 		<type>message</type>
 		<optional>1</optional>
 	</sink>
-
 	<sink>
 		<name>Trigger Stop</name>
 		<type>message</type>
 		<optional>1</optional>
 	</sink>
-
-	<sink>
-		<name>Content</name>
-		<type>byte</type>
-		<optional>1</optional>
-	</sink>
-
-  	<!-- Make one 'source' node per output. Sub-nodes:
-			* name (an identifier for the GUI)
-			* type
-			* vlen
-			* optional (set to 1 for optional inputs) -->
 	<source>
 		<name>pdu</name>
 		<type>byte</type>

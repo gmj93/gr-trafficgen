@@ -24,32 +24,40 @@
 
 #include <trafficgen/api.h>
 #include <gnuradio/block.h>
+#include <trafficgen/trafficgen_common.h>
 
 namespace gr {
-  namespace trafficgen {
+	namespace trafficgen {
 
-    /*!
-     * \brief <+description of block+>
-     * \ingroup trafficgen
-     *
-     */
-    class TRAFFICGEN_API cbr_transmitter : virtual public gr::block
-    {
-     public:
-      typedef boost::shared_ptr<cbr_transmitter> sptr;
+		/*!
+		 * \brief <+description of block+>
+		 * \ingroup trafficgen
+		 *
+		 */
+		class TRAFFICGEN_API cbr_transmitter : virtual public gr::block {
 
-      /*!
-       * \brief Return a shared_ptr to a new instance of trafficgen::cbr_transmitter.
-       *
-       * To avoid accidental use of raw pointers, trafficgen::cbr_transmitter's
-       * constructor is in a private implementation
-       * class. trafficgen::cbr_transmitter::make is the public interface for
-       * creating new instances.
-       */
-      static sptr make(uint32_t packet_size, double packet_interval, double start_time, double stop_time);
-    };
+			public:
+				typedef boost::shared_ptr<cbr_transmitter> sptr;
 
-  } // namespace trafficgen
+				/*!
+				 * \brief Return a shared_ptr to a new instance of trafficgen::cbr_transmitter.
+				 *
+				 * To avoid accidental use of raw pointers, trafficgen::cbr_transmitter's
+				 * constructor is in a private implementation
+				 * class. trafficgen::cbr_transmitter::make is the public interface for
+				 * creating new instances.
+				 */
+				static sptr make(uint32_t packet_size,
+								 float packet_interval,
+								 trafficgen_content_t content_type,
+								 int constant_value,
+								 trafficgen_random_distribution_t distribution_type,
+								 int distribution_min,
+								 int distribution_max,
+								 int distribution_mean,
+								 float distribution_std);
+		};
+	} // namespace trafficgen
 } // namespace gr
 
 #endif /* INCLUDED_TRAFFICGEN_CBR_TRANSMITTER_H */

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <block>
-	<name>User Trigger (CPP)</name>
+	<name>User Trigger</name>
 	<key>trafficgen_user_trigger</key>
 	<category>[trafficgen]</category>
 	<import>import trafficgen</import>
