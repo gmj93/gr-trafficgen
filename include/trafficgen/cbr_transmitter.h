@@ -24,7 +24,7 @@
 
 #include <trafficgen/api.h>
 #include <gnuradio/block.h>
-#include <trafficgen/trafficgen_common.h>
+#include <trafficgen/common.h>
 
 namespace gr {
 	namespace trafficgen {

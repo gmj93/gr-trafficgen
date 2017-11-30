@@ -25,5 +25,7 @@ install(FILES
     receiver_b.h
     cbr_transmitter.h
     time_trigger.h
-    user_trigger.h DESTINATION include/trafficgen
+    user_trigger.h
+    common.h
+    packet.h DESTINATION include/trafficgen
 )
