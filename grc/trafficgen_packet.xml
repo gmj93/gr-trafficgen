@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<block>
+  <name>packet</name>
+  <key>trafficgen_packet</key>
+  <make>trafficgen.packet($header, $options, $use_acks, $id, $message_length, $*payload, $crc32)</make>
+</block>
