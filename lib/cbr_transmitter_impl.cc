@@ -25,7 +25,7 @@
 #include <cstdio>
 #include <gnuradio/io_signature.h>
 #include "cbr_transmitter_impl.h"
-#include <trafficgen/trafficgen_common.h>
+#include <trafficgen/common.h>
 
 namespace gr {
 	namespace trafficgen {
@@ -178,18 +178,20 @@ namespace gr {
 
 			while(!d_finished){
 
-				std::cout << "------ CBR DEBUG ----------" << std::endl;
-				std::cout << "packet_size: " << d_packet_size << std::endl;
-				std::cout << "packet_interval: " << d_packet_interval << std::endl;
-				std::cout << "content_type: " << d_content_type << std::endl;
-				std::cout << "constant_value: " << d_constant_value << std::endl;
-				std::cout << "distribution_type: " << d_distribution_type << std::endl;
-				std::cout << "trigger_start: " << d_trigger_start << std::endl;
-				std::cout << "trigger_stop: " << d_trigger_stop << std::endl;
-				std::cout << "get_random_value (uniform): " << get_random_value(DIST_UNIFORM) << std::endl;
-				std::cout << "get_random_value (gaussian): " << get_random_value(DIST_GAUSSIAN) << std::endl;
-				std::cout << "get_random_value (poisson): " << get_random_value(DIST_POISSON) << std::endl;
-				std::cout << "------ CBR DEBUG ----------" << std::endl;
+				// std::cout << "------ CBR DEBUG ----------" << std::endl;
+				// std::cout << "packet_size: " << d_packet_size << std::endl;
+				// std::cout << "packet_interval: " << d_packet_interval << std::endl;
+				// std::cout << "content_type: " << d_content_type << std::endl;
+				// std::cout << "constant_value: " << d_constant_value << std::endl;
+				// std::cout << "distribution_type: " << d_distribution_type << std::endl;
+				// std::cout << "trigger_start: " << d_trigger_start << std::endl;
+				// std::cout << "trigger_stop: " << d_trigger_stop << std::endl;
+				// std::cout << "get_random_value (uniform): " << get_random_value(DIST_UNIFORM) << std::endl;
+				// std::cout << "get_random_value (gaussian): " << get_random_value(DIST_GAUSSIAN) << std::endl;
+				// std::cout << "get_random_value (poisson): " << get_random_value(DIST_POISSON) << std::endl;
+				// std::cout << "------ CBR DEBUG ----------" << std::endl;
+
+				std::cout << get_random_value(DIST_UNIFORM) << ";" << get_random_value(DIST_GAUSSIAN) << ";" << get_random_value(DIST_POISSON) << std::endl;
 
 				boost::this_thread::sleep(boost::posix_time::milliseconds(d_packet_interval));
 

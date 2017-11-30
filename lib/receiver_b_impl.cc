@@ -23,7 +23,7 @@
 #endif
 
 #include <gnuradio/io_signature.h>
-#include <trafficgen/trafficgen_common.h>
+#include <trafficgen/common.h>
 #include "receiver_b_impl.h"
 #include <cstdio>
 

@@ -23,7 +23,7 @@
 
 #include <trafficgen/cbr_transmitter.h>
 #include <gnuradio/thread/thread.h>
-#include <trafficgen/trafficgen_common.h>
+#include <trafficgen/common.h>
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/poisson_distribution.hpp>

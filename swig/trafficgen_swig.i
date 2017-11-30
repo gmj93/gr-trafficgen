@@ -12,10 +12,9 @@
 #include "trafficgen/cbr_transmitter.h"
 #include "trafficgen/time_trigger.h"
 #include "trafficgen/user_trigger.h"
-#include "trafficgen/trafficgen_common.h"
+#include "trafficgen/common.h"
+#include "trafficgen/packet.h"
 %}
-
-%include "trafficgen/trafficgen_common.h"
 
 %include "trafficgen/receiver_b.h"
 GR_SWIG_BLOCK_MAGIC2(trafficgen, receiver_b);
@@ -26,3 +25,5 @@ GR_SWIG_BLOCK_MAGIC2(trafficgen, cbr_transmitter);
 GR_SWIG_BLOCK_MAGIC2(trafficgen, time_trigger);
 %include "trafficgen/user_trigger.h"
 GR_SWIG_BLOCK_MAGIC2(trafficgen, user_trigger);
+%include "trafficgen/common.h"
+%include "trafficgen/packet.h"

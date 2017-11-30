@@ -28,7 +28,9 @@ list(APPEND trafficgen_sources
     receiver_b_impl.cc
     cbr_transmitter_impl.cc
     time_trigger_impl.cc
-    user_trigger_impl.cc )
+    user_trigger_impl.cc
+    common.cc
+    packet.cc )
 
 set(trafficgen_sources "${trafficgen_sources}" PARENT_SCOPE)
 if(NOT trafficgen_sources)
