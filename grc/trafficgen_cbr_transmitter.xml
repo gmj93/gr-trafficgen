@@ -12,7 +12,9 @@
 		$distribution_min,
 		$distribution_max,
 		$distribution_mean,
-		$distribution_std)</make>
+		$distribution_std,
+		$distribution_shape,
+		$distribution_scale)</make>
 	<param>
 		<name>Packet Size</name>
 		<key>packet_size</key>
@@ -63,26 +65,18 @@
 		<option>
 			<name>Uniform</name>
 			<key>trafficgen.DIST_UNIFORM</key>
-<!-- 			<opt>hide_min:</opt>
-			<opt>hide_max:</opt>
-			<opt>hide_mean:all</opt>
-			<opt>hide_std:all</opt> -->
 		</option>
 		<option>
 			<name>Gaussian</name>
 			<key>trafficgen.DIST_GAUSSIAN</key>
-			<!-- <opt>hide_min:all</opt>
-			<opt>hide_max:all</opt>
-			<opt>hide_mean:</opt>
-			<opt>hide_std:</opt> -->
 		</option>
 		<option>
 			<name>Poisson</name>
 			<key>trafficgen.DIST_POISSON</key>
-<!-- 			<opt>hide_min:all</opt>
-			<opt>hide_max:all</opt>
-			<opt>hide_mean:</opt>
-			<opt>hide_std:all</opt> -->
+		</option>
+		<option>
+			<name>Weibull</name>
+			<key>trafficgen.DIST_WEIBULL</key>
 		</option>
 	</param>
 	<param>
@@ -90,14 +84,14 @@
 		<key>distribution_min</key>
 		<value>0</value>
 		<type>int</type>
-		<hide>#if (($content_type() == 'trafficgen.CONTENT_RANDOM' or $content_type() == 'trafficgen.CONTENT_SEQUENTIAL') and ($distribution_type() == 'trafficgen.DIST_UNIFORM')) then 'none' else 'all'#</hide>
+		<hide>#if (($content_type() == 'trafficgen.CONTENT_RANDOM' and $distribution_type() == 'trafficgen.DIST_UNIFORM') or ($content_type() == 'trafficgen.CONTENT_SEQUENTIAL')) then 'none' else 'all'#</hide>
 	</param>
 	<param>
 		<name>Maximum</name>
 		<key>distribution_max</key>
 		<value>254</value>
 		<type>int</type>
-		<hide>#if (($content_type() == 'trafficgen.CONTENT_RANDOM' or $content_type() == 'trafficgen.CONTENT_SEQUENTIAL') and ($distribution_type() == 'trafficgen.DIST_UNIFORM')) then 'none' else 'all'#</hide>
+		<hide>#if (($content_type() == 'trafficgen.CONTENT_RANDOM' and $distribution_type() == 'trafficgen.DIST_UNIFORM') or ($content_type() == 'trafficgen.CONTENT_SEQUENTIAL')) then 'none' else 'all'#</hide>
 	</param>
 	<param>
 		<name>Mean</name>
@@ -113,7 +107,22 @@
 		<type>float</type>
 		<hide>#if ($content_type() == 'trafficgen.CONTENT_RANDOM' and $distribution_type() == 'trafficgen.DIST_GAUSSIAN') then 'none' else 'all'#</hide>
 	</param>
+	<param>
+		<name>Shape</name>
+		<key>distribution_shape</key>
+		<value>1</value>
+		<type>float</type>
+		<hide>#if ($content_type() == 'trafficgen.CONTENT_RANDOM' and $distribution_type() == 'trafficgen.DIST_WEIBULL') then 'none' else 'all'#</hide>
+	</param>
+	<param>
+		<name>Scale</name>
+		<key>distribution_scale</key>
+		<value>1</value>
+		<type>float</type>
+		<hide>#if ($content_type() == 'trafficgen.CONTENT_RANDOM' and $distribution_type() == 'trafficgen.DIST_WEIBULL') then 'none' else 'all'#</hide>
+	</param>
 	<check>$packet_size &gt;=16 and $packet_size &lt;=534773760</check>
+	<check>$constant_value &gt;=0 and $constant_value &lt;=255</check>
 	<sink>
 		<name>Trigger Start</name>
 		<type>message</type>

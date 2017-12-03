@@ -14,6 +14,7 @@
 #include "trafficgen/user_trigger.h"
 #include "trafficgen/common.h"
 #include "trafficgen/packet.h"
+#include "trafficgen/digital_crc32.h"
 %}
 
 %include "trafficgen/receiver_b.h"
@@ -27,3 +28,4 @@ GR_SWIG_BLOCK_MAGIC2(trafficgen, time_trigger);
 GR_SWIG_BLOCK_MAGIC2(trafficgen, user_trigger);
 %include "trafficgen/common.h"
 %include "trafficgen/packet.h"
+%include "trafficgen/digital_crc32.h"

@@ -27,5 +27,6 @@ install(FILES
     time_trigger.h
     user_trigger.h
     common.h
-    packet.h DESTINATION include/trafficgen
+    packet.h
+    digital_crc32.h DESTINATION include/trafficgen
 )
