@@ -6,6 +6,7 @@
 	<import>import trafficgen</import>
 	<make>trafficgen.cbr_transmitter($packet_size,
 		$packet_interval,
+		$use_acks,
 		$content_type,
 		$constant_value,
 		$distribution_type,
@@ -26,6 +27,20 @@
 		<key>packet_interval</key>
 		<value>1000</value>
 		<type>float</type>
+	</param>
+	<param>
+		<name>Use ACKs</name>
+		<key>use_acks</key>
+		<value>True</value>
+		<type>bool</type>
+		<option>
+			<name>Yes</name>
+			<key>True</key>
+		</option>
+		<option>
+			<name>No</name>
+			<key>False</key>
+		</option>
 	</param>
 	<param>
 		<name>Content Type</name>
@@ -135,7 +150,7 @@
 	</sink>
 	<source>
 		<name>pdu</name>
-		<type>byte</type>
+		<type>message</type>
 		<optional>1</optional> <!-- TODO remove -->
 	</source>
 </block>

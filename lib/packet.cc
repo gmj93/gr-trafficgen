@@ -104,43 +104,20 @@ namespace gr {
 
 		void packet::generate_next(){
 			
+			d_packet[2] = ++d_id;
 		}
 
 		void packet::generate_next(uint8_t *__payload){
 
-		// 	// TODO, increment ID and does everything else necessary to generate another 
-		// 	// packet faster ignoring previous packet's definitions. Call generate_next() then
-		// 	// get_pmt_blob() or get_stream() to get a copy of the new packet...
-
-			// set_payload(__payload, d_payload_length);
+			set_payload(__payload, d_payload_length);
+			generate_next();
 		}
 
-		// pmt::pmt_t packet::to_pmt(){
+		pmt::pmt_t packet::get_blob(){
 
-		// 	pmt::pmt_t packet = pmt::make_dict();
+			get_crc32();	// force calculation os packet's crc
 
-		// 	pmt::pmt_t headers = pmt::make_dict();	// headers, use_acks, id, packet_length
-		// 	pmt::pmt_t payload;
-		// 	pmt::pmt_t crc32;
-
-		// 	headers = pmt::dict_add(headers, pmt::intern("header"), pmt::from_long(d_header));
-		// 	headers = pmt::dict_add(headers, pmt::intern("use_acks"), pmt::from_bool(d_use_acks));
-		// 	headers = pmt::dict_add(headers, pmt::intern("id"), pmt::from_long(d_id));
-		// 	headers = pmt::dict_add(headers, pmt::intern("payload_length"), pmt::from_long(d_payload_length));
-
-		// 	packet = pmt::dict_add(packet, pmt::intern("headers"), headers);
-
-		// 	if (d_payload_length){
-
-		// 		 payload = pmt::make_blob(d_payload, d_payload_length);
-		// 		 packet = pmt::dict_add(packet, pmt::intern("payload"), payload);
-		// 	}
-
-		// 	// TODO calculate crc32 and then store in packet
-
-		// 	pmt::print(packet);
-
-		// 	return packet;
-		// }
+			return pmt::make_blob(d_packet, d_message_length);
+		}
 	} /* namespace trafficgen */
 } /* namespace gr */

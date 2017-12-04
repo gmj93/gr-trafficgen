@@ -22,10 +22,12 @@
 #include "config.h"
 #endif
 
-#include <cstdio>
 #include <gnuradio/io_signature.h>
-#include "cbr_transmitter_impl.h"
 #include <trafficgen/common.h>
+#include <trafficgen/packet.h>
+#include <cstring>
+#include "cbr_transmitter_impl.h"
+#include <cstdio>
 
 namespace gr {
 	namespace trafficgen {
@@ -33,25 +35,31 @@ namespace gr {
 		cbr_transmitter::sptr
 		cbr_transmitter::make (uint32_t packet_size,
 							   float packet_interval,
+							   bool use_acks,
 							   trafficgen_content_t content_type,
 							   int constant_value,
 							   trafficgen_random_distribution_t distribution_type,
 							   int distribution_min,
 							   int distribution_max,
 							   int distribution_mean,
-							   float distribution_std){
+							   float distribution_std,
+							   float distribution_shape,
+							   float distribution_scale){
 
 			return gnuradio::get_initial_sptr (
 				new cbr_transmitter_impl(
 					packet_size,
 					packet_interval,
+					use_acks,
 					content_type,
 					constant_value,
 					distribution_type,
 					distribution_min,
 					distribution_max,
 					distribution_mean,
-					distribution_std
+					distribution_std,
+					distribution_shape,
+					distribution_scale
 				)
 			);
 		}
@@ -59,19 +67,23 @@ namespace gr {
 		/* Constructor */
 		cbr_transmitter_impl::cbr_transmitter_impl(uint32_t packet_size,
 												   float packet_interval,
+												   bool use_acks,
 												   trafficgen_content_t content_type,
 												   int constant_value,
 												   trafficgen_random_distribution_t distribution_type,
 												   int distribution_min,
 												   int distribution_max,
 												   int distribution_mean,
-												   float distribution_std)
+												   float distribution_std,
+												   float distribution_shape,
+												   float distribution_scale)
 			: gr::block("cbr_transmitter", gr::io_signature::make(0, 0, 0), gr::io_signature::make(0, 0, 0)),
 			  d_finished(false),
 			  d_trigger_start(true),
 			  d_trigger_stop(false),
 			  d_packet_size(packet_size),
 			  d_packet_interval(packet_interval),
+			  d_use_acks(use_acks),
 			  d_content_type(content_type),
 			  d_constant_value(constant_value),
 			  d_distribution_type(distribution_type),
@@ -79,6 +91,8 @@ namespace gr {
 			  d_dist_max(distribution_max),
 			  d_dist_mean(distribution_mean),
 			  d_dist_std(distribution_std),
+			  d_dist_shape(distribution_shape),
+			  d_dist_scale(distribution_scale),
 			  d_rng(){
 
 			d_trigger_start_in_port = pmt::mp("Trigger Start");
@@ -135,6 +149,8 @@ namespace gr {
 					return d_variate_normal->operator()();
 				case DIST_POISSON:
 					return d_variate_poisson->operator()();
+				case DIST_WEIBULL:
+					return d_variate_weibull->operator()();
 				default:
 					throw std::runtime_error("Unknown ditribution defined");
 			}
@@ -153,6 +169,55 @@ namespace gr {
 			boost::poisson_distribution<> pd(d_dist_mean);
 			d_variate_poisson = boost::shared_ptr< boost::variate_generator<boost::mt19937, boost::poisson_distribution<>>>(
 				new boost::variate_generator <boost::mt19937, boost::poisson_distribution<>>(d_rng, pd));
+
+			boost::random::weibull_distribution<> wd(d_dist_shape, d_dist_scale);
+			d_variate_weibull = boost::shared_ptr< boost::variate_generator<boost::mt19937, boost::random::weibull_distribution<>>>(
+				new boost::variate_generator <boost::mt19937, boost::random::weibull_distribution<>>(d_rng, wd));
+		}
+
+		void cbr_transmitter_impl::fill_payload(uint8_t *__payload, uint32_t __size){
+			
+			switch(d_content_type){
+
+				case CONTENT_CONSTANT: {
+
+					std::memset(__payload, d_constant_value, (__size * sizeof(uint8_t)));
+				}
+				break;
+
+				case CONTENT_RANDOM: {
+
+					for (uint32_t i = 0; i < __size; i++){
+
+						__payload[i] = get_random_value(d_distribution_type);
+					}
+				}
+				break;
+
+				case CONTENT_SEQUENTIAL: {
+
+					uint32_t copied = 0;
+					uint32_t amount_to_copy = 0;
+					uint32_t element_count = (d_dist_max - d_dist_min + 1);
+					uint8_t elements[element_count];
+
+					std::iota(elements, elements + element_count, d_dist_min);
+
+					for (uint32_t i = 0; i < __size; i++){
+
+						amount_to_copy = (__size - copied);
+						amount_to_copy = amount_to_copy < element_count ? amount_to_copy : element_count;
+
+						std::memcpy(__payload + copied, &elements, amount_to_copy);
+
+						copied += amount_to_copy;
+					}
+				}
+				break;
+
+				default:
+				throw std::runtime_error("Undefined content type");
+			}
 		}
 
 		bool cbr_transmitter_impl::start(){
@@ -176,32 +241,84 @@ namespace gr {
 
 		void cbr_transmitter_impl::run(){
 
+			uint32_t id = 0;
+			packet *pk = new packet(PACKET_HEADER, d_use_acks, id, d_packet_size);	// Setup new packet
+			uint32_t payload_length = pk->get_payload_length();						// Get resulting payload space in it
+			uint8_t *payload = new uint8_t[payload_length];							// Setup a new payload
+
+			fill_payload(payload, payload_length);							// Fill payload with selected content
+
+			pk->set_payload(payload, pk->get_payload_length());				// Set our payload into packet
+
+			pmt::pmt_t blob_packet;
+			uint32_t stat_sent_packets = 0;
+  			uint64_t stat_sent_bytes = 0;
+  			double stat_average_throughput = 0;
+  			boost::posix_time::time_duration time_diff;
+  			boost::posix_time::ptime start;
+  			boost::posix_time::ptime stop;
+
+  			start = boost::posix_time::microsec_clock::local_time();
+
 			while(!d_finished){
-
-				// std::cout << "------ CBR DEBUG ----------" << std::endl;
-				// std::cout << "packet_size: " << d_packet_size << std::endl;
-				// std::cout << "packet_interval: " << d_packet_interval << std::endl;
-				// std::cout << "content_type: " << d_content_type << std::endl;
-				// std::cout << "constant_value: " << d_constant_value << std::endl;
-				// std::cout << "distribution_type: " << d_distribution_type << std::endl;
-				// std::cout << "trigger_start: " << d_trigger_start << std::endl;
-				// std::cout << "trigger_stop: " << d_trigger_stop << std::endl;
-				// std::cout << "get_random_value (uniform): " << get_random_value(DIST_UNIFORM) << std::endl;
-				// std::cout << "get_random_value (gaussian): " << get_random_value(DIST_GAUSSIAN) << std::endl;
-				// std::cout << "get_random_value (poisson): " << get_random_value(DIST_POISSON) << std::endl;
-				// std::cout << "------ CBR DEBUG ----------" << std::endl;
-
-				std::cout << get_random_value(DIST_UNIFORM) << ";" << get_random_value(DIST_GAUSSIAN) << ";" << get_random_value(DIST_POISSON) << std::endl;
-
-				boost::this_thread::sleep(boost::posix_time::milliseconds(d_packet_interval));
 
 				if (!d_create_packets) {
 
+					// TODO store partial statistics
+
+					stop = boost::posix_time::microsec_clock::local_time();
+
+					time_diff = stop - start;
+					stat_average_throughput = (double)stat_sent_bytes * 8.0 / (double)time_diff.total_milliseconds();
+
+					std::cout << "Partial (sent): " << stat_sent_packets << std::endl;
+					std::cout << "Partial (bytes): " << stat_sent_bytes << std::endl;
+					std::cout << "Partial (duration): " << time_diff.total_milliseconds() << std::endl;
+					std::cout << "Partial (tput): " << stat_average_throughput << std::endl;
+
 					boost::mutex::scoped_lock lock(d_mutex_condition);
-					d_run_packet_creation.wait(lock);	
+					d_run_packet_creation.wait(lock);
+					start = boost::posix_time::microsec_clock::local_time();
+					stat_sent_packets = 0;
+					stat_sent_bytes = 0;
+					stat_average_throughput = 0;
+				}
+
+				boost::this_thread::sleep(boost::posix_time::milliseconds(d_packet_interval));
+
+				blob_packet = pk->get_blob();
+				message_port_pub(d_pdu_out_port, blob_packet);
+
+				stat_sent_packets++;
+				stat_sent_bytes += d_packet_size;
+				// stat_average_throughput = stat_sent_bytes / 
+
+				if (d_content_type == CONTENT_RANDOM){
+
+					fill_payload(payload, payload_length);
+					pk->generate_next(payload);
+
+				} else {
+
+					pk->generate_next();
 				}
 
 				if (d_finished){
+
+					// TODO store statistics
+
+					stop = boost::posix_time::microsec_clock::local_time();
+
+					time_diff = stop - start;
+					stat_average_throughput = (double)stat_sent_bytes * 8.0 / (double)time_diff.total_milliseconds();
+
+					std::cout << "Final (sent): " << stat_sent_packets << std::endl;
+					std::cout << "Final (bytes): " << stat_sent_bytes << std::endl;
+					std::cout << "Final (duration): " << time_diff.total_milliseconds() << std::endl;
+					std::cout << "Final (tput): " << stat_average_throughput << std::endl;
+
+					delete pk;
+					delete payload;
 					return;
 				}
 			}

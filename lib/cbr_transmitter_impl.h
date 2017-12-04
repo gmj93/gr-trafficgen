@@ -28,6 +28,7 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/poisson_distribution.hpp>
 #include <boost/random/normal_distribution.hpp>
+#include <boost/random/weibull_distribution.hpp>
 #include <boost/random/uniform_int.hpp>
 
 namespace gr {
@@ -44,6 +45,7 @@ namespace gr {
 	  			bool d_trigger_start;
 	  			bool d_trigger_stop;
 	  			uint32_t d_packet_size;
+	  			bool d_use_acks;
 	  			float d_packet_interval;
 	  			int d_constant_value;
 	  			trafficgen_content_t d_content_type;
@@ -52,32 +54,57 @@ namespace gr {
 	  			int d_dist_max;
 	  			int d_dist_mean;
 	  			float d_dist_std;
+	  			float d_dist_shape;
+	  			float d_dist_scale;
 
 	  			pmt::pmt_t d_trigger_start_in_port;
 	  			pmt::pmt_t d_trigger_stop_in_port;
 	  			pmt::pmt_t d_pdu_out_port;
 
-	  			boost::mt19937 d_rng;
-	  			boost::shared_ptr<boost::variate_generator <boost::mt19937, boost::uniform_int<>>> d_variate_uniform;
-	  			boost::shared_ptr<boost::variate_generator <boost::mt19937, boost::normal_distribution<>>> d_variate_normal;
-	  			boost::shared_ptr<boost::variate_generator <boost::mt19937, boost::poisson_distribution<>>> d_variate_poisson;
+				boost::mt19937 d_rng;
+
+				boost::shared_ptr<
+					boost::variate_generator <
+						boost::mt19937, boost::uniform_int<>
+					>
+				> d_variate_uniform;
+
+				boost::shared_ptr<
+					boost::variate_generator <
+						boost::mt19937, boost::random::normal_distribution<>
+					>
+				> d_variate_normal;
+
+				boost::shared_ptr<
+					boost::variate_generator <
+						boost::mt19937, boost::random::poisson_distribution<>
+					>
+				> d_variate_poisson;
+
+				boost::shared_ptr<
+					boost::variate_generator <
+						boost::mt19937, boost::random::weibull_distribution<>
+					>
+				> d_variate_weibull;
 
 	  			void run();
 
 			public:
 				cbr_transmitter_impl(uint32_t packet_size,
 									 float packet_interval,
+									 bool use_acks,
 									 trafficgen_content_t content_type,
 									 int constant_value,
 									 trafficgen_random_distribution_t distribution_type,
 									 int distribution_min,
 									 int distribution_max,
 									 int distribution_mean,
-									 float distribution_std);
+									 float distribution_std,
+									 float distribution_shape,
+									 float distribution_scale);
 
 				~cbr_transmitter_impl();
 
-				// Where all the action really happens
 				void handle_trigger_start(pmt::pmt_t msg);
 
 				void handle_trigger_stop(pmt::pmt_t msg);
@@ -87,6 +114,8 @@ namespace gr {
 				float get_random_value(trafficgen_random_distribution_t distribution);
 
 				void setup_random_number_generators();
+
+				void fill_payload(uint8_t *__payload, uint32_t __size);
 
 				bool start();
 				bool stop();

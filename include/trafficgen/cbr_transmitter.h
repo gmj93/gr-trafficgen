@@ -49,13 +49,16 @@ namespace gr {
 				 */
 				static sptr make(uint32_t packet_size,
 								 float packet_interval,
+								 bool use_acks,
 								 trafficgen_content_t content_type,
 								 int constant_value,
 								 trafficgen_random_distribution_t distribution_type,
 								 int distribution_min,
 								 int distribution_max,
 								 int distribution_mean,
-								 float distribution_std);
+								 float distribution_std,
+								 float distribution_shape,
+								 float distribution_scale);
 		};
 	} // namespace trafficgen
 } // namespace gr

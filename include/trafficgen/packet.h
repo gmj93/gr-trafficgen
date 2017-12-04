@@ -69,7 +69,7 @@ namespace gr {
 
 				void generate_next(uint8_t *payload);
 
-				// pmt::pmt_t to_pmt();
+				pmt::pmt_t get_blob();
 		};
 	} // namespace trafficgen
 } // namespace gr
