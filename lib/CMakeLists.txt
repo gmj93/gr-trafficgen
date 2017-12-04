@@ -31,7 +31,8 @@ list(APPEND trafficgen_sources
     user_trigger_impl.cc
     common.cc
     packet.cc
-    digital_crc32.cc )
+    digital_crc32.cc
+    )
 
 set(trafficgen_sources "${trafficgen_sources}" PARENT_SCOPE)
 if(NOT trafficgen_sources)

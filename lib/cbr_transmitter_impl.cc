@@ -25,9 +25,10 @@
 #include <gnuradio/io_signature.h>
 #include <trafficgen/common.h>
 #include <trafficgen/packet.h>
+#include <trafficgen/file_sink_base.h>
 #include <cstring>
-#include "cbr_transmitter_impl.h"
 #include <cstdio>
+#include "cbr_transmitter_impl.h"
 
 namespace gr {
 	namespace trafficgen {
@@ -44,7 +45,8 @@ namespace gr {
 							   int distribution_mean,
 							   float distribution_std,
 							   float distribution_shape,
-							   float distribution_scale){
+							   float distribution_scale,
+							   const char *filename){
 
 			return gnuradio::get_initial_sptr (
 				new cbr_transmitter_impl(
@@ -59,7 +61,8 @@ namespace gr {
 					distribution_mean,
 					distribution_std,
 					distribution_shape,
-					distribution_scale
+					distribution_scale,
+					filename
 				)
 			);
 		}
@@ -76,7 +79,8 @@ namespace gr {
 												   int distribution_mean,
 												   float distribution_std,
 												   float distribution_shape,
-												   float distribution_scale)
+												   float distribution_scale,
+												   const char *filename)
 			: gr::block("cbr_transmitter", gr::io_signature::make(0, 0, 0), gr::io_signature::make(0, 0, 0)),
 			  d_finished(false),
 			  d_trigger_start(true),
@@ -94,6 +98,8 @@ namespace gr {
 			  d_dist_shape(distribution_shape),
 			  d_dist_scale(distribution_scale),
 			  d_rng(){
+
+			open_logfile(filename);
 
 			d_trigger_start_in_port = pmt::mp("Trigger Start");
 			d_trigger_stop_in_port = pmt::mp("Trigger Stop");
@@ -220,6 +226,16 @@ namespace gr {
 			}
 		}
 
+		void cbr_transmitter_impl::open_logfile(const char *__filename){
+
+			d_logfile.open(__filename, std::ios::out | std::ios::app);
+
+			if (!d_logfile.is_open()){
+
+				throw std::runtime_error("Unable to open file");
+			}
+		}
+
 		bool cbr_transmitter_impl::start(){
 
 			d_finished = false;
@@ -240,6 +256,8 @@ namespace gr {
 		}
 
 		void cbr_transmitter_impl::run(){
+
+			boost::this_thread::disable_interruption di;
 
 			uint32_t id = 0;
 			packet *pk = new packet(PACKET_HEADER, d_use_acks, id, d_packet_size);	// Setup new packet
@@ -262,28 +280,6 @@ namespace gr {
 
 			while(!d_finished){
 
-				if (!d_create_packets) {
-
-					// TODO store partial statistics
-
-					stop = boost::posix_time::microsec_clock::local_time();
-
-					time_diff = stop - start;
-					stat_average_throughput = (double)stat_sent_bytes * 8.0 / (double)time_diff.total_milliseconds();
-
-					std::cout << "Partial (sent): " << stat_sent_packets << std::endl;
-					std::cout << "Partial (bytes): " << stat_sent_bytes << std::endl;
-					std::cout << "Partial (duration): " << time_diff.total_milliseconds() << std::endl;
-					std::cout << "Partial (tput): " << stat_average_throughput << std::endl;
-
-					boost::mutex::scoped_lock lock(d_mutex_condition);
-					d_run_packet_creation.wait(lock);
-					start = boost::posix_time::microsec_clock::local_time();
-					stat_sent_packets = 0;
-					stat_sent_bytes = 0;
-					stat_average_throughput = 0;
-				}
-
 				boost::this_thread::sleep(boost::posix_time::milliseconds(d_packet_interval));
 
 				blob_packet = pk->get_blob();
@@ -291,7 +287,6 @@ namespace gr {
 
 				stat_sent_packets++;
 				stat_sent_bytes += d_packet_size;
-				// stat_average_throughput = stat_sent_bytes / 
 
 				if (d_content_type == CONTENT_RANDOM){
 
@@ -303,19 +298,45 @@ namespace gr {
 					pk->generate_next();
 				}
 
-				if (d_finished){
-
-					// TODO store statistics
+				if (!d_create_packets) {
 
 					stop = boost::posix_time::microsec_clock::local_time();
 
 					time_diff = stop - start;
 					stat_average_throughput = (double)stat_sent_bytes * 8.0 / (double)time_diff.total_milliseconds();
 
-					std::cout << "Final (sent): " << stat_sent_packets << std::endl;
-					std::cout << "Final (bytes): " << stat_sent_bytes << std::endl;
-					std::cout << "Final (duration): " << time_diff.total_milliseconds() << std::endl;
-					std::cout << "Final (tput): " << stat_average_throughput << std::endl;
+					d_logfile << "\n---- Trigger interruption ----\n" << std::flush;
+					d_logfile << "packets_sent;packets_received;tx_duration_ms;throughput\n" << std::flush;
+					d_logfile << stat_sent_packets << ";" 
+							  << stat_sent_bytes << ";" 
+							  << time_diff.total_milliseconds() << ";"
+							  << stat_average_throughput << "\n" 
+							  << std::flush;
+
+					boost::mutex::scoped_lock lock(d_mutex_condition);
+					d_run_packet_creation.wait(lock);
+					start = boost::posix_time::microsec_clock::local_time();
+					stat_sent_packets = 0;
+					stat_sent_bytes = 0;
+					stat_average_throughput = 0;
+				}
+
+				if (d_finished){
+
+					stop = boost::posix_time::microsec_clock::local_time();
+
+					time_diff = stop - start;
+					stat_average_throughput = (double)stat_sent_bytes * 8.0 / (double)time_diff.total_milliseconds();
+
+					d_logfile << "\n---- Finished ----\n" << std::flush;
+					d_logfile << "packets_sent;packets_received;tx_duration_ms;throughput\n" << std::flush;
+					d_logfile << stat_sent_packets << ";" 
+							  << stat_sent_bytes << ";" 
+							  << time_diff.total_milliseconds() << ";"
+							  << stat_average_throughput << "\n" 
+							  << std::flush;
+
+					d_logfile.close();
 
 					delete pk;
 					delete payload;

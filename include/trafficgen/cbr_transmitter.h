@@ -39,6 +39,8 @@ namespace gr {
 			public:
 				typedef boost::shared_ptr<cbr_transmitter> sptr;
 
+				virtual void open_logfile(const char *__filename) = 0;
+
 				/*!
 				 * \brief Return a shared_ptr to a new instance of trafficgen::cbr_transmitter.
 				 *
@@ -58,7 +60,8 @@ namespace gr {
 								 int distribution_mean,
 								 float distribution_std,
 								 float distribution_shape,
-								 float distribution_scale);
+								 float distribution_scale,
+								 const char *filename);
 		};
 	} // namespace trafficgen
 } // namespace gr

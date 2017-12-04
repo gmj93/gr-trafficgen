@@ -35,8 +35,6 @@ namespace gr {
 	  			bool d_state;
 	  			pmt::pmt_t d_msg;
 
-	  			// void run();
-
 			public:
 				user_trigger_impl(bool state);
 				~user_trigger_impl();
@@ -44,6 +42,7 @@ namespace gr {
 				void set_state(bool state);
 
 				bool start();
+
 				bool stop();
 		};
 	} // namespace trafficgen

@@ -30,6 +30,8 @@
 #include <boost/random/normal_distribution.hpp>
 #include <boost/random/weibull_distribution.hpp>
 #include <boost/random/uniform_int.hpp>
+#include <iostream>
+#include <fstream>
 
 namespace gr {
   	namespace trafficgen {
@@ -56,6 +58,7 @@ namespace gr {
 	  			float d_dist_std;
 	  			float d_dist_shape;
 	  			float d_dist_scale;
+	  			std::ofstream d_logfile;
 
 	  			pmt::pmt_t d_trigger_start_in_port;
 	  			pmt::pmt_t d_trigger_stop_in_port;
@@ -101,7 +104,8 @@ namespace gr {
 									 int distribution_mean,
 									 float distribution_std,
 									 float distribution_shape,
-									 float distribution_scale);
+									 float distribution_scale,
+									 const char *filename);
 
 				~cbr_transmitter_impl();
 
@@ -117,7 +121,10 @@ namespace gr {
 
 				void fill_payload(uint8_t *__payload, uint32_t __size);
 
+				void open_logfile(const char *__filename);
+
 				bool start();
+
 				bool stop();
 		};
 	} // namespace trafficgen

@@ -15,7 +15,9 @@
 		$distribution_mean,
 		$distribution_std,
 		$distribution_shape,
-		$distribution_scale)</make>
+		$distribution_scale,
+		$logfile)</make>
+		<callback>open_logfile($logfile)</callback>
 	<param>
 		<name>Packet Size</name>
 		<key>packet_size</key>
@@ -135,6 +137,12 @@
 		<value>1</value>
 		<type>float</type>
 		<hide>#if ($content_type() == 'trafficgen.CONTENT_RANDOM' and $distribution_type() == 'trafficgen.DIST_WEIBULL') then 'none' else 'all'#</hide>
+	</param>
+	<param>
+		<name>Log File</name>
+		<key>logfile</key>
+		<value>/tmp/trafficgen_cbr_transmitter.log</value>
+		<type>file_save</type>
 	</param>
 	<check>$packet_size &gt;=16 and $packet_size &lt;=534773760</check>
 	<check>$constant_value &gt;=0 and $constant_value &lt;=255</check>

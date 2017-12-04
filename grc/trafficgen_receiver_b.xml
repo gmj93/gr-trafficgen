@@ -1,37 +1,26 @@
 <?xml version="1.0"?>
 <block>
-  <name>receiver_b</name>
-  <key>trafficgen_receiver_b</key>
-  <category>[trafficgen]</category>
-  <import>import trafficgen</import>
-  <make>trafficgen.receiver_b($use_acks)</make>
-  <!-- Make one 'param' node for every Parameter you want settable from the GUI.
-       Sub-nodes:
-       * name
-       * key (makes the value accessible as $keyname, e.g. in the make node)
-       * type -->
-  <param>
-    <name>Use ACKs</name>
-    <key>use_acks</key>
-    <value>True</value>
-    <type>bool</type>
-    <option>
-      <name>Yes</name>
-      <key>True</key>
-    </option>
-    <option>
-      <name>No</name>
-      <key>False</key>
-    </option>
-  </param>
-
-  <!-- Make one 'sink' node per input. Sub-nodes:
-       * name (an identifier for the GUI)
-       * type
-       * vlen
-       * optional (set to 1 for optional inputs) -->
-  <sink>
-    <name>pdu</name>
-    <type>byte</type>
-  </sink>
+	<name>receiver_b</name>
+	<key>trafficgen_receiver_b</key>
+	<category>[trafficgen]</category>
+	<import>import trafficgen</import>
+	<make>trafficgen.receiver_b($use_acks)</make>
+	<param>
+		<name>Use ACKs</name>
+		<key>use_acks</key>
+		<value>True</value>
+		<type>bool</type>
+		<option>
+			<name>Yes</name>
+			<key>True</key>
+		</option>
+		<option>
+			<name>No</name>
+			<key>False</key>
+		</option>
+	</param>
+	<sink>
+		<name>pdu</name>
+		<type>message</type>
+	</sink>
 </block>

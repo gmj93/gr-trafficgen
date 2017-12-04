@@ -23,5 +23,6 @@ install(FILES
     trafficgen_user_trigger.xml
     trafficgen_common.xml
     trafficgen_packet.xml
-    trafficgen_digital_crc32.xml DESTINATION share/gnuradio/grc/blocks
+    trafficgen_digital_crc32.xml
+    DESTINATION share/gnuradio/grc/blocks
 )
