@@ -8,7 +8,6 @@
 %include "trafficgen_swig_doc.i"
 
 %{
-#include "trafficgen/receiver_b.h"
 #include "trafficgen/cbr_transmitter.h"
 #include "trafficgen/time_trigger.h"
 #include "trafficgen/user_trigger.h"
@@ -18,8 +17,6 @@
 #include "trafficgen/receiver.h"
 %}
 
-%include "trafficgen/receiver_b.h"
-GR_SWIG_BLOCK_MAGIC2(trafficgen, receiver_b);
 %include "trafficgen/cbr_transmitter.h"
 GR_SWIG_BLOCK_MAGIC2(trafficgen, cbr_transmitter);
 

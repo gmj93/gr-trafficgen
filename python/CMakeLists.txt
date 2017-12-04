@@ -41,7 +41,6 @@ include(GrTest)
 
 set(GR_TEST_TARGET_DEPS gnuradio-trafficgen)
 set(GR_TEST_PYTHON_DIRS ${CMAKE_BINARY_DIR}/swig)
-GR_ADD_TEST(qa_receiver_b ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_receiver_b.py)
 GR_ADD_TEST(qa_cbr_transmitter ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_cbr_transmitter.py)
 GR_ADD_TEST(qa_time_trigger ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_time_trigger.py)
 GR_ADD_TEST(qa_user_trigger ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_user_trigger.py)

@@ -25,7 +25,6 @@ include(GrPlatform) #define LIB_SUFFIX
 include_directories(${Boost_INCLUDE_DIR})
 link_directories(${Boost_LIBRARY_DIRS})
 list(APPEND trafficgen_sources
-    receiver_b_impl.cc
     cbr_transmitter_impl.cc
     time_trigger_impl.cc
     user_trigger_impl.cc

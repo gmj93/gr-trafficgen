@@ -17,7 +17,6 @@
 # the Free Software Foundation, Inc., 51 Franklin Street,
 # Boston, MA 02110-1301, USA.
 install(FILES
-    trafficgen_receiver_b.xml
     trafficgen_cbr_transmitter.xml
     trafficgen_time_trigger.xml
     trafficgen_user_trigger.xml

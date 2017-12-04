@@ -22,7 +22,6 @@
 ########################################################################
 install(FILES
     api.h
-    receiver_b.h
     cbr_transmitter.h
     time_trigger.h
     user_trigger.h
