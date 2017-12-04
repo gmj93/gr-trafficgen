@@ -159,6 +159,5 @@
 	<source>
 		<name>pdu</name>
 		<type>message</type>
-		<optional>1</optional> <!-- TODO remove -->
 	</source>
 </block>

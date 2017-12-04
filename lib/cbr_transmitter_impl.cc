@@ -25,7 +25,6 @@
 #include <gnuradio/io_signature.h>
 #include <trafficgen/common.h>
 #include <trafficgen/packet.h>
-#include <trafficgen/file_sink_base.h>
 #include <cstring>
 #include <cstdio>
 #include "cbr_transmitter_impl.h"

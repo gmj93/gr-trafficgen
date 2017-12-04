@@ -29,5 +29,5 @@ install(FILES
     common.h
     packet.h
     digital_crc32.h
-    DESTINATION include/trafficgen
+    receiver.h DESTINATION include/trafficgen
 )

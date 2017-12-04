@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<block>
+	<name>Receiver</name>
+	<key>trafficgen_receiver</key>
+	<category>[trafficgen]</category>
+	<import>import trafficgen</import>
+	<make>trafficgen.receiver($logfile)</make>
+	<param>
+		<name>Log File</name>
+		<key>logfile</key>
+		<value>/tmp/trafficgen_receiver.log</value>
+		<type>file_save</type>
+	</param>
+	<sink>
+		<name>input</name>
+		<type>message</type>
+	</sink>
+	<source>
+		<name>ack</name>
+		<type>message</type>
+		<optional>1</optional>
+	</source>
+</block>
