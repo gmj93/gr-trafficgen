@@ -20,13 +20,8 @@ typedef enum {
 namespace gr {
 	namespace trafficgen {
 
-		class TRAFFICGEN_API common {
+		TRAFFICGEN_API uint64_t calculate_timestamp();
 
-			private:
-			public:
-				common();
-				~common();
-		};
 	} // namespace trafficgen
 } // namespace gr
 
