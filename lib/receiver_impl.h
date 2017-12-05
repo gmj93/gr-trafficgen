@@ -22,13 +22,15 @@ namespace gr {
 			double   stat_throughput_average;
 			double   stat_jitter_average;
 			double   stat_latency_average;
+			double   stat_aggregate_latency;
+			uint64_t stat_latency_samples;
 
-			boost::posix_time::ptime reception_started;
-			boost::posix_time::ptime reception_ended;
-			boost::posix_time::ptime last_packet_reception;
-			boost::posix_time::time_duration last_packet_interval;
-			double   aggregate_jitter;
-			uint64_t jitter_samples;
+			boost::posix_time::ptime         stat_reception_started;
+			boost::posix_time::ptime         stat_reception_ended;
+			boost::posix_time::ptime         stat_last_packet_reception;
+			boost::posix_time::time_duration stat_last_packet_interval;
+			double                           stat_aggregate_jitter;
+			uint64_t                         stat_jitter_samples;
 
 			pmt::pmt_t d_input_in_port;
 			pmt::pmt_t d_ack_out_port;

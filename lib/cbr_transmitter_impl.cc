@@ -251,6 +251,8 @@ namespace gr {
 			d_thread->interrupt();
 			d_thread->join();
 
+			std::cout << std::flush;
+
 			return block::stop();
 		}
 
@@ -279,10 +281,16 @@ namespace gr {
 
 			while(!d_finished){
 
-				boost::this_thread::sleep(boost::posix_time::milliseconds(d_packet_interval));
-
+				pk->set_timestamp();
 				blob_packet = pk->get_blob();
 				message_port_pub(d_pdu_out_port, blob_packet);
+
+				std::cout << "[TX][" << pk->get_id() 
+						  << "][Size: " << pk->get_message_length() << " B]" << std::endl << std::flush;
+
+				// pk->print();
+
+				boost::this_thread::sleep(boost::posix_time::milliseconds(d_packet_interval));
 
 				stat_sent_packets++;
 				stat_sent_bytes += d_packet_size;
@@ -302,7 +310,7 @@ namespace gr {
 					stop = boost::posix_time::microsec_clock::local_time();
 
 					time_diff = stop - start;
-					stat_average_throughput = (double)stat_sent_bytes * 8.0 / (double)time_diff.total_milliseconds();
+					stat_average_throughput = (((double)stat_sent_bytes * 8.0) / ((double)time_diff.total_milliseconds() / 1000.0));
 
 					d_logfile << "\n---- Trigger interruption ----\n" << std::flush;
 					d_logfile << "packets_sent;packets_received;tx_duration_ms;throughput\n" << std::flush;
@@ -325,7 +333,7 @@ namespace gr {
 					stop = boost::posix_time::microsec_clock::local_time();
 
 					time_diff = stop - start;
-					stat_average_throughput = (double)stat_sent_bytes * 8.0 / (double)time_diff.total_milliseconds();
+					stat_average_throughput = (((double)stat_sent_bytes * 8.0) / ((double)time_diff.total_milliseconds() / 1000.0));
 
 					d_logfile << "\n---- Finished ----\n" << std::flush;
 					d_logfile << "packets_sent;packets_received;tx_duration_ms;throughput\n" << std::flush;

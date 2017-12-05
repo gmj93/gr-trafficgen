@@ -3,6 +3,7 @@
 #endif
 
 #include <gnuradio/io_signature.h>
+#include <trafficgen/common.h>
 #include "receiver_impl.h"
 
 namespace gr {
@@ -25,12 +26,14 @@ namespace gr {
 			  stat_throughput_average(0),
 			  stat_jitter_average(0),
 			  stat_latency_average(0),
-			  reception_started(boost::posix_time::not_a_date_time),
-			  reception_ended(boost::posix_time::not_a_date_time),
-			  last_packet_reception(boost::posix_time::not_a_date_time),
-			  last_packet_interval(boost::posix_time::not_a_date_time),
-			  aggregate_jitter(0),
-			  jitter_samples(0){
+			  stat_aggregate_latency(0),
+			  stat_latency_samples(0),
+			  stat_reception_started(boost::posix_time::not_a_date_time),
+			  stat_reception_ended(boost::posix_time::not_a_date_time),
+			  stat_last_packet_reception(boost::posix_time::not_a_date_time),
+			  stat_last_packet_interval(boost::posix_time::not_a_date_time),
+			  stat_aggregate_jitter(0),
+			  stat_jitter_samples(0){
 
 			open_logfile(filename);
 			d_input_in_port = pmt::mp("input");
@@ -52,15 +55,16 @@ namespace gr {
 
 		bool receiver_impl::stop(){
 
-			reception_ended = boost::posix_time::microsec_clock::local_time();
-			boost::posix_time::time_duration time_diff = reception_ended - reception_started;
+			stat_reception_ended = boost::posix_time::microsec_clock::local_time();
+			boost::posix_time::time_duration time_diff = stat_reception_ended - stat_reception_started;
 
 			stat_throughput_average = (stat_bytes_valid_received * 8.0) / ((double) time_diff.total_milliseconds()/1000.0);
 
-			stat_jitter_average = aggregate_jitter / jitter_samples;
+			stat_jitter_average  = stat_aggregate_jitter / stat_jitter_samples;
+			stat_latency_average =  stat_aggregate_latency / stat_latency_samples;
 
 			d_logfile << "\n---- Finished ----\n" << std::flush;
-			d_logfile << "packets_total_received;packets_valid_received;packets_invalid_header;packets_invalid_crc;bytes_total_received;bytes_valid_received;average_throughput_bps;average_jitter_ms;duration_ms\n" << std::flush;
+			d_logfile << "packets_total_received;packets_valid_received;packets_invalid_header;packets_invalid_crc;bytes_total_received;bytes_valid_received;average_throughput_bps;average_latency_ms;average_jitter_ms;duration_ms\n" << std::flush;
 			d_logfile << stat_packets_total_received << ";"
 					  << stat_packets_valid_received << ";"
 					  << stat_packets_invalid_header << ";"
@@ -68,6 +72,7 @@ namespace gr {
 					  << stat_bytes_total_received << ";"
 					  << stat_bytes_valid_received << ";"
 					  << stat_throughput_average << ";"
+					  << stat_latency_average << ";"
 					  << stat_jitter_average << ";"
 					  << time_diff.total_milliseconds() << "\n" << std::flush;
 
@@ -88,12 +93,17 @@ namespace gr {
 
 			packet *pk = new packet(__packet);
 
-			if (reception_started.is_not_a_date_time()){
+			if (stat_reception_started.is_not_a_date_time()){
 
-				reception_started = boost::posix_time::microsec_clock::local_time();
+				stat_reception_started = boost::posix_time::microsec_clock::local_time();
 			}
 
 			boost::posix_time::ptime now = boost::posix_time::microsec_clock::local_time();
+
+			std::cout << "[RX][" << pk->get_id() 
+						  << "][Size: " << pk->get_message_length() << " B]" << std::endl << std::flush;
+
+			// pk->print();
 
 			stat_packets_total_received++;
 			stat_bytes_total_received += pk->get_message_length();
@@ -102,29 +112,35 @@ namespace gr {
 
 			if (check_result == PK_VALID){
 
+				uint64_t timestamp_now = calculate_timestamp();
+
+				// Using abs() to avoid negative numbers in case of unsynchronized clocks
+				stat_aggregate_latency += abs(timestamp_now - pk->get_timestamp());
+				stat_latency_samples++;
+
 				stat_packets_valid_received++;
 				stat_bytes_valid_received += pk->get_message_length();
 
-				if (!last_packet_reception.is_not_a_date_time()){
+				if (!stat_last_packet_reception.is_not_a_date_time()){
 
 					// Inteval between current and last packet
-					boost::posix_time::time_duration diff = now - last_packet_reception;
+					boost::posix_time::time_duration diff = now - stat_last_packet_reception;
 					double current = (double)diff.total_milliseconds();
 					double last;
 
-					if (!last_packet_interval.is_not_a_date_time()){
+					if (!stat_last_packet_interval.is_not_a_date_time()){
 
-						last = (double)last_packet_interval.total_milliseconds();
+						last = (double)stat_last_packet_interval.total_milliseconds();
 
 						// Difference of intervals
-						aggregate_jitter += fabs(current - last);
-						jitter_samples++;
+						stat_aggregate_jitter += fabs(current - last);
+						stat_jitter_samples++;
 					}
 
-					last_packet_interval = diff;
+					stat_last_packet_interval = diff;
 				} 
 
-				last_packet_reception = now;
+				stat_last_packet_reception = now;
 
 			} else if (check_result == PK_HEADER_ERR){
 

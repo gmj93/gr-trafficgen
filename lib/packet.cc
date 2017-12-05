@@ -5,6 +5,7 @@
 #include <gnuradio/io_signature.h>
 #include <trafficgen/packet.h>
 #include <trafficgen/digital_crc32.h>
+#include <trafficgen/common.h>
 #include <iostream>
 #include <cstring>
 
@@ -23,11 +24,12 @@ namespace gr {
 		  	d_vector_length  = ceil(d_message_length / sizeof(uint32_t));
 		  	d_payload_length = (d_message_length - PACKET_HEADERS_SIZE);
 
-		  	d_packet         = new uint32_t[d_vector_length];
-		  	d_packet[0]      = d_header;
-		  	d_packet[1]      = d_use_acks ? 1 : 0;
-		  	d_packet[2]      = d_id;
-		  	d_packet[3]      = d_payload_length;
+		  	d_packet             = new uint32_t[d_vector_length];
+		  	d_packet[INDEX_HEAD] = d_header;
+		  	d_packet[INDEX_ACKS] = d_use_acks ? 1 : 0;
+		  	d_packet[INDEX_PKID] = d_id;
+		  	d_packet[INDEX_PLEN] = d_payload_length;
+
 		}
 
 		packet::packet(pmt::pmt_t __packet){
@@ -40,10 +42,12 @@ namespace gr {
 			d_packet           = (uint32_t *) pmt::blob_data(__packet);
 			d_message_length   = pmt::blob_length(__packet);
 			d_vector_length    = ceil(d_message_length / sizeof(uint32_t));
-			d_header           = d_packet[0];
-			d_use_acks         = d_packet[1] ? true : false;
-			d_id               = d_packet[2];
-			d_payload_length   = d_packet[3];
+			d_header           = d_packet[INDEX_HEAD];
+			d_use_acks         = d_packet[INDEX_ACKS] ? true : false;
+			d_id               = d_packet[INDEX_PKID];
+			d_payload_length   = d_packet[INDEX_PLEN];
+			d_timestamp_lo	   = d_packet[INDEX_TSLO];
+			d_timestamp_hi	   = d_packet[INDEX_TSHI];
 			d_crc32            = d_packet[d_vector_length - 1];
 		}
 
@@ -51,9 +55,9 @@ namespace gr {
 
 		void packet::set_header(uint32_t __header){
 
-			d_header    = __header;
-			d_packet[0] = __header;
-			d_crc32     = 0;		// Invalidate current CRC
+			d_header             = __header;
+			d_packet[INDEX_HEAD] = __header;
+			d_crc32              = 0;		// Invalidate current CRC
 		}
 
 		uint32_t packet::get_header(){
@@ -63,9 +67,9 @@ namespace gr {
 
 		void packet::set_use_acks(bool __use_acks){
 
-			d_use_acks  = __use_acks;
-			d_packet[1] = __use_acks ? 1 : 0;
-			d_crc32     = 0;
+			d_use_acks           = __use_acks;
+			d_packet[INDEX_ACKS] = __use_acks ? 1 : 0;
+			d_crc32              = 0;
 		}
 
 		bool packet::get_use_acks(){
@@ -75,9 +79,9 @@ namespace gr {
 
 		void packet::set_id(uint32_t __id){
 
-			d_id        = __id;
-			d_packet[2] = __id;
-			d_crc32     = 0;
+			d_id                 = __id;
+			d_packet[INDEX_PKID] = __id;
+			d_crc32              = 0;
 		}
 
 		uint32_t packet::get_id(){
@@ -133,6 +137,27 @@ namespace gr {
 			return crc;
 		}
 
+		uint64_t packet::get_timestamp(){
+
+			uint64_t timestamp64 = d_timestamp_hi;
+			timestamp64 = (timestamp64 << 32) | d_timestamp_lo;
+
+			return timestamp64;
+		}
+
+		void packet::set_timestamp(){
+
+			uint64_t timestamp64 = calculate_timestamp();
+			uint32_t *timestamp = reinterpret_cast<uint32_t *>(&timestamp64);
+
+			d_timestamp_lo       = timestamp[0];
+			d_timestamp_hi       = timestamp[1];
+			d_packet[INDEX_TSLO] = d_timestamp_lo;
+			d_packet[INDEX_TSHI] = d_timestamp_hi;
+
+			d_crc32 = 0;
+		}
+
 		void packet::generate_next(){
 			
 			set_id(++d_id);
@@ -158,12 +183,13 @@ namespace gr {
 		void packet::print(){
 
 			std::cout << "-----------------------------------------" << std::endl << std::flush;
-			std::cout << "Header: " << d_header << std::endl << std::flush;
-			std::cout << "ACKs: " << (d_use_acks ? "Enabled" : "Disabled") << std::endl << std::flush;
-			std::cout << "ID:" << d_id << std::endl << std::flush;
+			std::cout << "Header: "       << d_header << std::endl << std::flush;
+			std::cout << "ACKs: "         << (d_use_acks ? "Enabled" : "Disabled") << std::endl << std::flush;
+			std::cout << "ID:"            << d_id << std::endl << std::flush;
 			std::cout << "Payload Size: " << d_payload_length << std::endl << std::flush;
-			std::cout << "Total Size: " << d_message_length << std::endl << std::flush;
-			std::cout << "CRC32: " << d_crc32 << std::endl << std::flush;
+			std::cout << "Total Size: "   << d_message_length << std::endl << std::flush;
+			std::cout << "Timestamp: "	  << get_timestamp() << std::endl << std ::flush;
+			std::cout << "CRC32: "        << d_crc32 << std::endl << std::flush;
 			std::cout << "Payload: [";
 
 			if (d_payload_length){

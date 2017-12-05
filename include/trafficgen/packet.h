@@ -4,14 +4,22 @@
 #include <trafficgen/api.h>
 #include <pmt/pmt.h>
 #include <cstdint>
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 namespace gr {
 	namespace trafficgen {
 
 		#define PACKET_HEADER 0b00101010
-		#define PACKET_PREFIX_ELEMENTS 4
-		#define PACKET_PREFIX_SIZE (4 * sizeof(uint32_t))	// Bytes before payload
-		#define PACKET_HEADERS_SIZE (5 * sizeof(uint32_t))	// Total bytes of headers on packet
+		#define PACKET_PREFIX_ELEMENTS 6
+		#define PACKET_PREFIX_SIZE (PACKET_PREFIX_ELEMENTS * sizeof(uint32_t))	// Bytes before payload
+		#define PACKET_HEADERS_SIZE (7 * sizeof(uint32_t))	// Total bytes of headers on packet
+
+		#define INDEX_HEAD 0
+		#define INDEX_ACKS 1
+		#define INDEX_PKID 2
+		#define INDEX_PLEN 3
+		#define INDEX_TSLO 4
+		#define INDEX_TSHI 5
 
 		typedef enum {
 			PK_VALID,
@@ -24,9 +32,11 @@ namespace gr {
 		 * packet[1] = use_acks			4 B
 		 * packet[2] = id 				4 B
 		 * packet[3] = payload_length	4 B
+		 * packet[4] = timestamp Lo 	4 B
+		 * packet[5] = timestamp Hi 	4 B
 		 * packet[m..n] = payload (converted from uint8_t to uint32_t) X B
 		 * packet[n+1] = crc32 			4 B
-		 * total of 20 B of headers
+		 * total of 28 B of headers
 		 */
 
 		class TRAFFICGEN_API packet {
@@ -38,6 +48,8 @@ namespace gr {
 				uint32_t d_payload_length;
 				uint32_t d_message_length;	// in Bytes
 				uint32_t d_vector_length;	// size of our uint32_t vector
+				uint32_t d_timestamp_lo;
+				uint32_t d_timestamp_hi;
 				uint8_t *d_payload;
 				uint32_t d_crc32;
 				uint32_t *d_packet;
@@ -69,18 +81,26 @@ namespace gr {
 
 				uint32_t get_id();
 
-				// /* Message length is calculated based on payload length plus headers */
+				/* Message length is calculated based on payload length plus headers */
 				uint32_t get_message_length();
 
-				// /* Payload length does not consider header overhead */
+				/* Payload length does not consider header overhead */
 				uint32_t get_payload_length();
 
-				// /* We must pass payload length to ease the copy into the struct later... */
 				void set_payload(uint8_t *__payload, uint32_t __payload_length);
 
 				void get_payload(uint8_t *__buffer);
 
+				/* Returns packet's crc32 */
 				uint32_t get_crc32();
+
+				/* Returns packet's timestamp */
+				uint64_t get_timestamp();
+
+				/* Set packet's timestamp to now 
+				 * **WARNING NOT AUTOMATICALLY SET ON CONSTRUCTOR!** 
+				 */
+				void set_timestamp();
 
 				void generate_next();
 
