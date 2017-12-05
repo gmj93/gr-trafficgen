@@ -9,6 +9,15 @@ namespace gr {
 	namespace trafficgen {
 
 		#define PACKET_HEADER 0b00101010
+		#define PACKET_PREFIX_ELEMENTS 4
+		#define PACKET_PREFIX_SIZE (4 * sizeof(uint32_t))	// Bytes before payload
+		#define PACKET_HEADERS_SIZE (5 * sizeof(uint32_t))	// Total bytes of headers on packet
+
+		typedef enum {
+			PK_VALID,
+			PK_HEADER_ERR,
+			PK_CRC_ERR
+		} packet_status_t;
 
 		/* A packet here is a uint32_t vector, where:
 		 * packet[0] = header			4 B
@@ -33,24 +42,32 @@ namespace gr {
 				uint32_t d_crc32;
 				uint32_t *d_packet;
 
+			private:
+				void set_crc32(uint32_t __crc);
+
+				uint32_t calculate_crc32();
+
 			public:
 				packet(uint32_t header,
 					   bool use_acks,
 					   uint32_t id,
 					   uint32_t message_length);
+
+				packet(pmt::pmt_t __packet);
+
 				~packet();
 
-				void set_header(uint32_t __header);			// OK
+				void set_header(uint32_t __header);
 
-				uint32_t get_header();						// OK
+				uint32_t get_header();
 
-				void set_use_acks(bool __use_acks);			// OK
+				void set_use_acks(bool __use_acks);
 
-				bool get_use_acks();						// OK
+				bool get_use_acks();
 
-				void set_id(uint32_t __id);					// OK
+				void set_id(uint32_t __id);
 
-				uint32_t get_id();							// OK
+				uint32_t get_id();
 
 				// /* Message length is calculated based on payload length plus headers */
 				uint32_t get_message_length();
@@ -70,6 +87,10 @@ namespace gr {
 				void generate_next(uint8_t *payload);
 
 				pmt::pmt_t get_blob();
+
+				void print();
+
+				packet_status_t check();
 		};
 	} // namespace trafficgen
 } // namespace gr
