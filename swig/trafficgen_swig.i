@@ -15,6 +15,8 @@
 #include "trafficgen/packet.h"
 #include "trafficgen/digital_crc32.h"
 #include "trafficgen/receiver.h"
+#include "trafficgen/vbr_transmitter.h"
+#include "trafficgen/generator_uniform.h"
 %}
 
 %include "trafficgen/cbr_transmitter.h"
@@ -29,3 +31,7 @@ GR_SWIG_BLOCK_MAGIC2(trafficgen, user_trigger);
 %include "trafficgen/digital_crc32.h"
 %include "trafficgen/receiver.h"
 GR_SWIG_BLOCK_MAGIC2(trafficgen, receiver);
+%include "trafficgen/vbr_transmitter.h"
+GR_SWIG_BLOCK_MAGIC2(trafficgen, vbr_transmitter);
+%include "trafficgen/generator_uniform.h"
+GR_SWIG_BLOCK_MAGIC2(trafficgen, generator_uniform);

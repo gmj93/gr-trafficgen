@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<block>
+	<name>Generator (Uniform)</name>
+	<key>trafficgen_generator_uniform</key>
+	<category>[trafficgen]</category>
+	<import>import trafficgen</import>
+	<make>trafficgen.generator_uniform($vbr_port, $minimum, $maximum, $multiplier)</make>
+	<param>
+		<name>VBR Port</name>
+		<key>vbr_port</key>
+		<type>enum</type>
+		<option>
+			<name>Packet Size</name>
+			<key>trafficgen.VBR_PORT_PACKET_SIZE</key>
+		</option>
+		<option>
+			<name>Burst Interval</name>
+			<key>trafficgen.VBR_PORT_BURST_INTERVAL</key>
+		</option>
+		<option>
+			<name>Burst Duration</name>
+			<key>trafficgen.VBR_PORT_REQUEST_BURST_DURATION</key>
+		</option>
+		<option>
+			<name>Packet Interval</name>
+			<key>trafficgen.VBR_PORT_REQUEST_PACKET_INTERVAL</key>
+		</option>
+	</param>
+	<param>
+		<name>Minimum</name>
+		<key>minimum</key>
+		<value>0</value>
+		<type>float</type>
+	</param>
+	<param>
+		<name>Maximum</name>
+		<key>maximum</key>
+		<value>1</value>
+		<type>float</type>
+	</param>
+	<param>
+		<name>Multiplier</name>
+		<key>multiplier</key>
+		<value>1000</value>
+		<type>float</type>
+	</param>
+	<sink>
+		<name>Request</name>
+		<type>message</type>
+	</sink>
+	<source>
+		<name>Value</name>
+		<type>message</type>
+	</source>
+</block>

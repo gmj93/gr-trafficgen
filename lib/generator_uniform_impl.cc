@@ -1,0 +1,70 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include <gnuradio/io_signature.h>
+#include "generator_uniform_impl.h"
+#include <trafficgen/common.h>
+
+namespace gr {
+	namespace trafficgen {
+
+		generator_uniform::sptr
+		generator_uniform::make(trafficgen_vbr_ports_t vbr_port,
+								double minimum,
+								double maximum,
+								double multiplier){
+
+			return gnuradio::get_initial_sptr
+				(new generator_uniform_impl(vbr_port, minimum, maximum, multiplier));
+		}
+
+		generator_uniform_impl::generator_uniform_impl(trafficgen_vbr_ports_t vbr_port,
+													   double minimum,
+													   double maximum,
+													   double multiplier)
+			: gr::block("generator_uniform", gr::io_signature::make(0, 0, 0), gr::io_signature::make(0, 0, 0)),
+			  d_vbr_port(vbr_port),
+			  d_minimum(minimum),
+			  d_maximum(maximum),
+			  d_multiplier(multiplier){
+
+			d_request_in_port = pmt::mp(MP_REQUEST_IN);
+			d_value_out_port = pmt::mp(MP_GENERATOR_OUT);
+
+			message_port_register_in(d_request_in_port);
+			message_port_register_out(d_value_out_port);
+
+			set_msg_handler(d_request_in_port,
+							boost::bind(&generator_uniform_impl::publish_value, this, _1));
+
+			boost::uniform_int<> ud(d_minimum, d_maximum);
+			d_generator = boost::shared_ptr<boost::variate_generator<boost::mt19937, boost::uniform_int<>>>(
+				new boost::variate_generator <boost::mt19937, boost::uniform_int<>>(d_rng, ud));
+
+		}
+
+		generator_uniform_impl::~generator_uniform_impl(){}
+
+		void generator_uniform_impl::publish_value(pmt::pmt_t msg){
+
+			if (pmt::to_long(msg) == d_vbr_port){
+
+				pmt::pmt_t value = pmt::from_double(d_generator->operator()());
+
+				message_port_pub(d_value_out_port, value);
+			}
+		}
+
+		bool generator_uniform_impl::start(){
+
+			return block::start();
+		}
+
+		bool generator_uniform_impl::stop(){
+
+			return block::stop();
+		}
+	} /* namespace trafficgen */
+} /* namespace gr */
+
