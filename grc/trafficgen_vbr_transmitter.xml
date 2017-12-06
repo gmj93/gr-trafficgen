@@ -1,0 +1,108 @@
+<?xml version="1.0"?>
+<block>
+	<name>VBR Transmitter</name>
+	<key>trafficgen_vbr_transmitter</key>
+	<category>[trafficgen]</category>
+	<import>import trafficgen</import>
+	<make>trafficgen.vbr_transmitter($use_acks,
+		$content_type,
+		$constant_value,
+		$sequential_minimum,
+		$sequential_maximum,
+		$logfile)</make>
+	<callback>open_logfile($logfile)</callback>
+	<param>
+		<name>Use ACKs</name>
+		<key>use_acks</key>
+		<value>True</value>
+		<type>bool</type>
+		<option>
+			<name>Yes</name>
+			<key>True</key>
+		</option>
+		<option>
+			<name>No</name>
+			<key>False</key>
+		</option>
+	</param>
+	<param>
+		<name>Content Type</name>
+		<key>content_type</key>
+		<type>enum</type>
+		<option>
+			<name>Constant</name>
+			<key>trafficgen.CONTENT_CONSTANT</key>
+		</option>
+		<option>
+			<name>Sequential</name>
+			<key>trafficgen.CONTENT_SEQUENTIAL</key>
+		</option>
+	</param>
+	<param>
+		<name>Constant Value</name>
+		<key>constant_value</key>
+		<value>0</value>
+		<type>int</type>
+		<hide>#if ($content_type() == 'trafficgen.CONTENT_CONSTANT') then 'none' else 'all'#</hide>
+	</param>
+	<param>
+		<name>Minimum</name>
+		<key>sequential_minimum</key>
+		<value>0</value>
+		<type>int</type>
+		<hide>#if ($content_type() == 'trafficgen.CONTENT_SEQUENTIAL') then 'none' else 'all'#</hide>
+	</param>
+	<param>
+		<name>Maximum</name>
+		<key>sequential_maximum</key>
+		<value>255</value>
+		<type>int</type>
+		<hide>#if ($content_type() == 'trafficgen.CONTENT_SEQUENTIAL') then 'none' else 'all'#</hide>
+	</param>
+	<param>
+		<name>Log File</name>
+		<key>logfile</key>
+		<value>/tmp/trafficgen_vbr_transmitter.log</value>
+		<type>file_save</type>
+	</param>
+	<sink>
+		<name>Trigger Start</name>
+		<type>message</type>
+		<optional>1</optional>
+	</sink>
+	<sink>
+		<name>Trigger Stop</name>
+		<type>message</type>
+		<optional>1</optional>
+	</sink>
+	<sink>
+		<name>Packet Size</name>
+		<type>message</type>
+		<optional>1</optional>
+	</sink>
+	<sink>
+		<name>Burst Interval</name>
+		<type>message</type>
+		<optional>1</optional>
+	</sink>
+	<sink>
+		<name>Burst Duration</name>
+		<type>message</type>
+		<optional>1</optional>
+	</sink>
+	<sink>
+		<name>Packet Interval</name>
+		<type>message</type>
+		<optional>1</optional>
+	</sink>
+	<source>
+		<name>PDU</name>
+		<type>message</type>
+		<optional>1</optional>
+	</source>
+	<source>
+		<name>Request</name>
+		<type>message</type>
+		<optional>1</optional>
+	</source>
+</block>
