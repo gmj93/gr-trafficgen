@@ -4,6 +4,7 @@
 
 #include <gnuradio/io_signature.h>
 #include "generator_poisson_impl.h"
+#include <trafficgen/common.h>
 
 namespace gr {
 	namespace trafficgen {
@@ -44,7 +45,7 @@ namespace gr {
 
 			if (pmt::to_long(msg) == d_vbr_port){
 
-				pmt::pmt_t value = pmt::from_double(d_generator->operator()());
+				pmt::pmt_t value = pmt::from_double(d_generator->operator()() * d_multiplier);
 
 				message_port_pub(d_value_out_port, value);
 			}

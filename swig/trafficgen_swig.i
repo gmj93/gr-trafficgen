@@ -20,6 +20,7 @@
 #include "trafficgen/generator_gaussian.h"
 #include "trafficgen/generator_poisson.h"
 #include "trafficgen/generator_weibull.h"
+#include "trafficgen/generator_constant.h"
 %}
 
 %include "trafficgen/cbr_transmitter.h"
@@ -44,3 +45,5 @@ GR_SWIG_BLOCK_MAGIC2(trafficgen, generator_gaussian);
 GR_SWIG_BLOCK_MAGIC2(trafficgen, generator_poisson);
 %include "trafficgen/generator_weibull.h"
 GR_SWIG_BLOCK_MAGIC2(trafficgen, generator_weibull);
+%include "trafficgen/generator_constant.h"
+GR_SWIG_BLOCK_MAGIC2(trafficgen, generator_constant);

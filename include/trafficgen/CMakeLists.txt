@@ -33,5 +33,6 @@ install(FILES
     generator_uniform.h
     generator_gaussian.h
     generator_poisson.h
-    generator_weibull.h DESTINATION include/trafficgen
+    generator_weibull.h
+    generator_constant.h DESTINATION include/trafficgen
 )

@@ -28,5 +28,6 @@ install(FILES
     trafficgen_generator_uniform.xml
     trafficgen_generator_gaussian.xml
     trafficgen_generator_poisson.xml
-    trafficgen_generator_weibull.xml DESTINATION share/gnuradio/grc/blocks
+    trafficgen_generator_weibull.xml
+    trafficgen_generator_constant.xml DESTINATION share/gnuradio/grc/blocks
 )

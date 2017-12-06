@@ -50,7 +50,7 @@ namespace gr {
 
 			if (pmt::to_long(msg) == d_vbr_port){
 
-				pmt::pmt_t value = pmt::from_double(d_generator->operator()());
+				pmt::pmt_t value = pmt::from_double(d_generator->operator()() * d_multiplier);
 
 				message_port_pub(d_value_out_port, value);
 			}

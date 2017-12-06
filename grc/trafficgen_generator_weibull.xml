@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <block>
-	<name>generator_weibull</name>
+	<name>Generator (Weibull)</name>
 	<key>trafficgen_generator_weibull</key>
 	<category>[trafficgen]</category>
 	<import>import trafficgen</import>

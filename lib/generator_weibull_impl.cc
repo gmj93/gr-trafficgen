@@ -4,6 +4,7 @@
 
 #include <gnuradio/io_signature.h>
 #include "generator_weibull_impl.h"
+#include <trafficgen/common.h>
 
 namespace gr {
 	namespace trafficgen {
@@ -23,12 +24,13 @@ namespace gr {
 													   double scale,
 													   double multiplier)
 	  		: gr::block("generator_weibull", gr::io_signature::make(0, 0, 0),gr::io_signature::make(0, 0, 0)),
+	  		d_vbr_port(vbr_port),
 	  		d_shape(shape),
 	  		d_scale(scale),
 	  		d_multiplier(multiplier){
 
 	  		d_request_in_port = pmt::mp(MP_REQUEST_IN);
-			d_value_out_port = pmt::mp(MP_GENERATOR_OUT);
+			d_value_out_port  = pmt::mp(MP_GENERATOR_OUT);
 
 			message_port_register_in(d_request_in_port);
 			message_port_register_out(d_value_out_port);
@@ -47,7 +49,7 @@ namespace gr {
 
 			if (pmt::to_long(msg) == d_vbr_port){
 
-				pmt::pmt_t value = pmt::from_double(d_generator->operator()());
+				pmt::pmt_t value = pmt::from_double(d_generator->operator()() * d_multiplier);
 
 				message_port_pub(d_value_out_port, value);
 			}

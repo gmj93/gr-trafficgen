@@ -36,7 +36,8 @@ list(APPEND trafficgen_sources
     generator_uniform_impl.cc
     generator_gaussian_impl.cc
     generator_poisson_impl.cc
-    generator_weibull_impl.cc )
+    generator_weibull_impl.cc
+    generator_constant_impl.cc )
 
 set(trafficgen_sources "${trafficgen_sources}" PARENT_SCOPE)
 if(NOT trafficgen_sources)
