@@ -33,7 +33,10 @@ list(APPEND trafficgen_sources
     digital_crc32.cc
     receiver_impl.cc
     vbr_transmitter_impl.cc
-    generator_uniform_impl.cc )
+    generator_uniform_impl.cc
+    generator_gaussian_impl.cc
+    generator_poisson_impl.cc
+    generator_weibull_impl.cc )
 
 set(trafficgen_sources "${trafficgen_sources}" PARENT_SCOPE)
 if(NOT trafficgen_sources)

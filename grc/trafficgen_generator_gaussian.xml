@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<block>
+	<name>Generator (Gaussian)</name>
+	<key>trafficgen_generator_gaussian</key>
+	<category>[trafficgen]</category>
+	<import>import trafficgen</import>
+	<make>trafficgen.generator_gaussian($vbr_port, $mean, $std, $multiplier)</make>
+	<param>
+		<name>VBR Port</name>
+		<key>vbr_port</key>
+		<type>enum</type>
+		<option>
+			<name>Packet Size</name>
+			<key>trafficgen.VBR_PORT_PACKET_SIZE</key>
+		</option>
+		<option>
+			<name>Burst Interval</name>
+			<key>trafficgen.VBR_PORT_BURST_INTERVAL</key>
+		</option>
+		<option>
+			<name>Burst Duration</name>
+			<key>trafficgen.VBR_PORT_REQUEST_BURST_DURATION</key>
+		</option>
+		<option>
+			<name>Packet Interval</name>
+			<key>trafficgen.VBR_PORT_REQUEST_PACKET_INTERVAL</key>
+		</option>
+	</param>
+	<param>
+		<name>Mean</name>
+		<key>mean</key>
+		<value>0.5</value>
+		<type>float</type>
+	</param>
+	<param>
+		<name>Std</name>
+		<key>std</key>
+		<value>0.1</value>
+		<type>float</type>
+	</param>
+	<param>
+		<name>Multiplier</name>
+		<key>multiplier</key>
+		<value>1000</value>
+		<type>float</type>
+	</param>
+	<sink>
+		<name>Request</name>
+		<type>message</type>
+	</sink>
+	<source>
+		<name>Value</name>
+		<type>message</type>
+	</source>
+</block>

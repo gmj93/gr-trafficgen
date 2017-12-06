@@ -25,5 +25,8 @@ install(FILES
     trafficgen_digital_crc32.xml
     trafficgen_receiver.xml
     trafficgen_vbr_transmitter.xml
-    trafficgen_generator_uniform.xml DESTINATION share/gnuradio/grc/blocks
+    trafficgen_generator_uniform.xml
+    trafficgen_generator_gaussian.xml
+    trafficgen_generator_poisson.xml
+    trafficgen_generator_weibull.xml DESTINATION share/gnuradio/grc/blocks
 )

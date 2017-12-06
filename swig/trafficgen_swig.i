@@ -17,6 +17,9 @@
 #include "trafficgen/receiver.h"
 #include "trafficgen/vbr_transmitter.h"
 #include "trafficgen/generator_uniform.h"
+#include "trafficgen/generator_gaussian.h"
+#include "trafficgen/generator_poisson.h"
+#include "trafficgen/generator_weibull.h"
 %}
 
 %include "trafficgen/cbr_transmitter.h"
@@ -35,3 +38,9 @@ GR_SWIG_BLOCK_MAGIC2(trafficgen, receiver);
 GR_SWIG_BLOCK_MAGIC2(trafficgen, vbr_transmitter);
 %include "trafficgen/generator_uniform.h"
 GR_SWIG_BLOCK_MAGIC2(trafficgen, generator_uniform);
+%include "trafficgen/generator_gaussian.h"
+GR_SWIG_BLOCK_MAGIC2(trafficgen, generator_gaussian);
+%include "trafficgen/generator_poisson.h"
+GR_SWIG_BLOCK_MAGIC2(trafficgen, generator_poisson);
+%include "trafficgen/generator_weibull.h"
+GR_SWIG_BLOCK_MAGIC2(trafficgen, generator_weibull);

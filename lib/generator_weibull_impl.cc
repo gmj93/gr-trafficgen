@@ -1,0 +1,66 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include <gnuradio/io_signature.h>
+#include "generator_weibull_impl.h"
+
+namespace gr {
+	namespace trafficgen {
+
+		generator_weibull::sptr
+		generator_weibull::make(trafficgen_vbr_ports_t vbr_port,
+								double shape,
+								double scale,
+								double multiplier){
+	  		
+	  		return gnuradio::get_initial_sptr
+				(new generator_weibull_impl(vbr_port, shape, scale, multiplier));
+		}
+
+		generator_weibull_impl::generator_weibull_impl(trafficgen_vbr_ports_t vbr_port,
+													   double shape,
+													   double scale,
+													   double multiplier)
+	  		: gr::block("generator_weibull", gr::io_signature::make(0, 0, 0),gr::io_signature::make(0, 0, 0)),
+	  		d_shape(shape),
+	  		d_scale(scale),
+	  		d_multiplier(multiplier){
+
+	  		d_request_in_port = pmt::mp(MP_REQUEST_IN);
+			d_value_out_port = pmt::mp(MP_GENERATOR_OUT);
+
+			message_port_register_in(d_request_in_port);
+			message_port_register_out(d_value_out_port);
+
+			set_msg_handler(d_request_in_port,
+							boost::bind(&generator_weibull_impl::publish_value, this, _1));
+
+			boost::random::weibull_distribution<> wd(d_shape, d_scale);
+			d_generator = boost::shared_ptr< boost::variate_generator<boost::mt19937, boost::random::weibull_distribution<>>>(
+				new boost::variate_generator <boost::mt19937, boost::random::weibull_distribution<>>(d_rng, wd));
+		}
+
+		generator_weibull_impl::~generator_weibull_impl(){}
+
+		void generator_weibull_impl::publish_value(pmt::pmt_t msg){
+
+			if (pmt::to_long(msg) == d_vbr_port){
+
+				pmt::pmt_t value = pmt::from_double(d_generator->operator()());
+
+				message_port_pub(d_value_out_port, value);
+			}
+		}
+
+		bool generator_weibull_impl::start(){
+
+			return block::start();
+		}
+
+		bool generator_weibull_impl::stop(){
+
+			return block::stop();
+		}
+	} /* namespace trafficgen */
+} /* namespace gr */

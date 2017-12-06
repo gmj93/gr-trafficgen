@@ -30,5 +30,8 @@ install(FILES
     digital_crc32.h
     receiver.h
     vbr_transmitter.h
-    generator_uniform.h DESTINATION include/trafficgen
+    generator_uniform.h
+    generator_gaussian.h
+    generator_poisson.h
+    generator_weibull.h DESTINATION include/trafficgen
 )
