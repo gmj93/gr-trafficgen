@@ -28,5 +28,7 @@ install(FILES
     common.h
     packet.h
     digital_crc32.h
-    receiver.h DESTINATION include/trafficgen
+    receiver.h
+    vbr_transmitter.h
+    generator_uniform.h DESTINATION include/trafficgen
 )

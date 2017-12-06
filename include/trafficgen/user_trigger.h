@@ -28,11 +28,6 @@
 namespace gr {
 	namespace trafficgen {
 
-		/*!
-		 * \brief <+description of block+>
-		 * \ingroup trafficgen
-		 *
-		 */
 		class TRAFFICGEN_API user_trigger : virtual public gr::block {
 		
 			public:
@@ -41,14 +36,6 @@ namespace gr {
 		  		/* Reset trigger state */
 				virtual void set_state(bool state) = 0;
 
-				/*!
-				 * \brief Return a shared_ptr to a new instance of trafficgen::user_trigger.
-				 *
-				 * To avoid accidental use of raw pointers, trafficgen::user_trigger's
-				 * constructor is in a private implementation
-				 * class. trafficgen::user_trigger::make is the public interface for
-				 * creating new instances.
-				 */
 				static sptr make(bool state);
 		};
 

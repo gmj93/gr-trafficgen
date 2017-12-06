@@ -35,20 +35,13 @@ namespace gr {
 	  		return gnuradio::get_initial_sptr (new user_trigger_impl(state));
 		}
 
-		/*
-		 * The private constructor
-		 */
 		user_trigger_impl::user_trigger_impl(bool state)
 	  		: gr::block("user_trigger", gr::io_signature::make(0, 0, 0), gr::io_signature::make(0,0,0)),
-			  d_finished(false),
 			  d_state(state){
 
 			  	message_port_register_out(pmt::mp("trigger"));
 		}
 
-		/*
-		 * Our virtual destructor.
-		 */
 		user_trigger_impl::~user_trigger_impl(){}
 
 		bool user_trigger_impl::start(){

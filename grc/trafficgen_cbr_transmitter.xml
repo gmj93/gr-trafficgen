@@ -17,7 +17,7 @@
 		$distribution_shape,
 		$distribution_scale,
 		$logfile)</make>
-		<callback>open_logfile($logfile)</callback>
+	<callback>open_logfile($logfile)</callback>
 	<param>
 		<name>Packet Size</name>
 		<key>packet_size</key>
@@ -106,7 +106,7 @@
 	<param>
 		<name>Maximum</name>
 		<key>distribution_max</key>
-		<value>254</value>
+		<value>255</value>
 		<type>int</type>
 		<hide>#if (($content_type() == 'trafficgen.CONTENT_RANDOM' and $distribution_type() == 'trafficgen.DIST_UNIFORM') or ($content_type() == 'trafficgen.CONTENT_SEQUENTIAL')) then 'none' else 'all'#</hide>
 	</param>
@@ -157,7 +157,7 @@
 		<optional>1</optional>
 	</sink>
 	<source>
-		<name>pdu</name>
+		<name>PDU</name>
 		<type>message</type>
 	</source>
 </block>

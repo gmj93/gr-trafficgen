@@ -30,10 +30,8 @@ namespace gr {
 		class user_trigger_impl : public user_trigger {
 	 		
 	 		private:
-	 			boost::shared_ptr<gr::thread::thread> d_thread;
-				bool d_finished;
 	  			bool d_state;
-	  			pmt::pmt_t d_msg;
+				pmt::pmt_t d_msg;
 
 			public:
 				user_trigger_impl(bool state);

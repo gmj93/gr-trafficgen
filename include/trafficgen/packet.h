@@ -10,6 +10,7 @@ namespace gr {
 	namespace trafficgen {
 
 		#define PACKET_HEADER 0b00101010
+		#define PACKET_MINIMUM_SIZE_B 32
 		#define PACKET_PREFIX_ELEMENTS 6
 		#define PACKET_PREFIX_SIZE (PACKET_PREFIX_ELEMENTS * sizeof(uint32_t))	// Bytes before payload
 		#define PACKET_HEADERS_SIZE (7 * sizeof(uint32_t))	// Total bytes of headers on packet

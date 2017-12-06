@@ -100,9 +100,9 @@ namespace gr {
 
 			open_logfile(filename);
 
-			d_trigger_start_in_port = pmt::mp("Trigger Start");
-			d_trigger_stop_in_port = pmt::mp("Trigger Stop");
-			d_pdu_out_port = pmt::mp("pdu");
+			d_trigger_start_in_port = pmt::mp(MP_TRIGGER_START_IN);
+			d_trigger_stop_in_port  = pmt::mp(MP_TRIGGER_STOP_IN);
+			d_pdu_out_port          = pmt::mp(MP_PDU_OUT);
 
 			message_port_register_in(d_trigger_start_in_port);
 			message_port_register_in(d_trigger_stop_in_port);

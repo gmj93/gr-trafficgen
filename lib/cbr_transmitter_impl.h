@@ -44,8 +44,8 @@ namespace gr {
 				boost::mutex d_mutex_condition;
 				bool d_create_packets;
 				bool d_finished;
-	  			bool d_trigger_start;
-	  			bool d_trigger_stop;
+				bool d_trigger_start;
+				bool d_trigger_stop;
 	  			uint32_t d_packet_size;
 	  			bool d_use_acks;
 	  			float d_packet_interval;
@@ -60,9 +60,9 @@ namespace gr {
 	  			float d_dist_scale;
 	  			std::ofstream d_logfile;
 
-	  			pmt::pmt_t d_trigger_start_in_port;
-	  			pmt::pmt_t d_trigger_stop_in_port;
-	  			pmt::pmt_t d_pdu_out_port;
+				pmt::pmt_t d_trigger_start_in_port;
+				pmt::pmt_t d_trigger_stop_in_port;
+				pmt::pmt_t d_pdu_out_port;
 
 				boost::mt19937 d_rng;
 

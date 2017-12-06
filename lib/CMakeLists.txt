@@ -31,7 +31,9 @@ list(APPEND trafficgen_sources
     common.cc
     packet.cc
     digital_crc32.cc
-    receiver_impl.cc )
+    receiver_impl.cc
+    vbr_transmitter_impl.cc
+    generator_uniform_impl.cc )
 
 set(trafficgen_sources "${trafficgen_sources}" PARENT_SCOPE)
 if(NOT trafficgen_sources)
