@@ -35,6 +35,7 @@
 		<key>use_acks</key>
 		<value>True</value>
 		<type>bool</type>
+		<hide>all</hide>
 		<option>
 			<name>Yes</name>
 			<key>True</key>
