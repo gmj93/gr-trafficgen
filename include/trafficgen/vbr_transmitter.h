@@ -12,6 +12,8 @@ namespace gr {
 			public:
 				typedef boost::shared_ptr<vbr_transmitter> sptr;
 
+				virtual void open_logfile(const char *__filename) = 0;
+
 				static sptr make(bool use_acks,
 								 trafficgen_content_t content_type,
 								 int constant_value,

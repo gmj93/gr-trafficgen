@@ -41,14 +41,6 @@ namespace gr {
 
 				virtual void open_logfile(const char *__filename) = 0;
 
-				/*!
-				 * \brief Return a shared_ptr to a new instance of trafficgen::cbr_transmitter.
-				 *
-				 * To avoid accidental use of raw pointers, trafficgen::cbr_transmitter's
-				 * constructor is in a private implementation
-				 * class. trafficgen::cbr_transmitter::make is the public interface for
-				 * creating new instances.
-				 */
 				static sptr make(uint32_t packet_size,
 								 float packet_interval,
 								 bool use_acks,

@@ -25,6 +25,7 @@
 #include <gnuradio/io_signature.h>
 #include <trafficgen/common.h>
 #include <trafficgen/packet.h>
+#include <boost/chrono.hpp>
 #include <cstring>
 #include <cstdio>
 #include "cbr_transmitter_impl.h"
@@ -84,6 +85,7 @@ namespace gr {
 			  d_finished(false),
 			  d_trigger_start(true),
 			  d_trigger_stop(false),
+			  d_create_packets(true),
 			  d_packet_size(packet_size),
 			  d_packet_interval(packet_interval),
 			  d_use_acks(use_acks),
@@ -260,24 +262,27 @@ namespace gr {
 
 			boost::this_thread::disable_interruption di;
 
-			uint32_t id = 0;
-			packet *pk = new packet(PACKET_HEADER, d_use_acks, id, d_packet_size);	// Setup new packet
-			uint32_t payload_length = pk->get_payload_length();						// Get resulting payload space in it
-			uint8_t *payload = new uint8_t[payload_length];							// Setup a new payload
+			uint32_t id             = 0;
+			packet   *pk            = new packet(PACKET_HEADER, d_use_acks, id, d_packet_size);		// Setup new packet
+			uint32_t payload_length = pk->get_payload_length();										// Get resulting payload space in it
+			uint8_t  *payload       = new uint8_t[payload_length];									// Setup a new payload
 
 			fill_payload(payload, payload_length);							// Fill payload with selected content
 
-			pk->set_payload(payload, pk->get_payload_length());				// Set our payload into packet
+			pk->set_payload(payload, payload_length);						// Set our payload into packet
 
 			pmt::pmt_t blob_packet;
-			uint32_t stat_sent_packets = 0;
-  			uint64_t stat_sent_bytes = 0;
-  			double stat_average_throughput = 0;
-  			boost::posix_time::time_duration time_diff;
-  			boost::posix_time::ptime start;
-  			boost::posix_time::ptime stop;
+			uint32_t   stat_sent_packets       = 0;
+			uint64_t   stat_sent_bytes         = 0;
+			double     stat_average_throughput = 0;
 
-  			start = boost::posix_time::microsec_clock::local_time();
+			boost::posix_time::time_duration time_diff;
+			boost::posix_time::ptime         start;
+			boost::posix_time::ptime         stop;
+
+			start = boost::posix_time::microsec_clock::local_time();
+
+			uint64_t interval = (uint64_t)(d_packet_interval * 1000.0);	// Use time as millis
 
 			while(!d_finished){
 
@@ -285,15 +290,15 @@ namespace gr {
 				blob_packet = pk->get_blob();
 				message_port_pub(d_pdu_out_port, blob_packet);
 
+				stat_sent_packets++;
+				stat_sent_bytes += d_packet_size;
+
 				std::cout << "[TX][" << pk->get_id() 
 						  << "][Size: " << pk->get_message_length() << " B]" << std::endl << std::flush;
 
 				// pk->print();
 
-				boost::this_thread::sleep(boost::posix_time::milliseconds(d_packet_interval));
-
-				stat_sent_packets++;
-				stat_sent_bytes += d_packet_size;
+				boost::this_thread::sleep_for(boost::chrono::microseconds(interval));
 
 				if (d_content_type == CONTENT_RANDOM){
 
@@ -310,10 +315,11 @@ namespace gr {
 					stop = boost::posix_time::microsec_clock::local_time();
 
 					time_diff = stop - start;
-					stat_average_throughput = (((double)stat_sent_bytes * 8.0) / ((double)time_diff.total_milliseconds() / 1000.0));
+					stat_average_throughput = (((double)stat_sent_bytes * 8.0) /
+											   ((double)time_diff.total_milliseconds() / 1000.0));
 
 					d_logfile << "\n---- Trigger interruption ----\n" << std::flush;
-					d_logfile << "packets_sent;packets_received;tx_duration_ms;throughput\n" << std::flush;
+					d_logfile << "packets_sent;bytes_sent;tx_duration_ms;throughput\n" << std::flush;
 					d_logfile << stat_sent_packets << ";" 
 							  << stat_sent_bytes << ";" 
 							  << time_diff.total_milliseconds() << ";"
@@ -323,8 +329,9 @@ namespace gr {
 					boost::mutex::scoped_lock lock(d_mutex_condition);
 					d_run_packet_creation.wait(lock);
 					start = boost::posix_time::microsec_clock::local_time();
-					stat_sent_packets = 0;
-					stat_sent_bytes = 0;
+
+					stat_sent_packets       = 0;
+					stat_sent_bytes         = 0;
 					stat_average_throughput = 0;
 				}
 
@@ -336,7 +343,7 @@ namespace gr {
 					stat_average_throughput = (((double)stat_sent_bytes * 8.0) / ((double)time_diff.total_milliseconds() / 1000.0));
 
 					d_logfile << "\n---- Finished ----\n" << std::flush;
-					d_logfile << "packets_sent;packets_received;tx_duration_ms;throughput\n" << std::flush;
+					d_logfile << "packets_sent;bytes_sent;tx_duration_ms;throughput\n" << std::flush;
 					d_logfile << stat_sent_packets << ";" 
 							  << stat_sent_bytes << ";" 
 							  << time_diff.total_milliseconds() << ";"

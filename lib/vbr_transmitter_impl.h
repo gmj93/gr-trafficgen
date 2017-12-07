@@ -34,10 +34,10 @@ namespace gr {
 				int d_sequential_maximum;
 				std::ofstream d_logfile;
 
-				double d_packet_size;
-				double d_burst_interval;
-				double d_burst_duration;
-				double d_packet_interval;
+				uint64_t d_packet_size;
+				uint64_t d_burst_interval;
+				uint64_t d_burst_duration;
+				uint64_t d_packet_interval;
 
 				pmt::pmt_t d_trigger_start_in_port;
 				pmt::pmt_t d_trigger_stop_in_port;
@@ -72,6 +72,10 @@ namespace gr {
 			void set_burst_duration(pmt::pmt_t msg);
 
 			void set_packet_interval(pmt::pmt_t msg);
+
+			void fill_payload(uint8_t *__payload, uint32_t __size);
+
+			void open_logfile(const char *__filename);
 
 			bool start();
 

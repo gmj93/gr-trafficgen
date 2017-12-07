@@ -5,6 +5,7 @@
 #include <gnuradio/io_signature.h>
 #include <trafficgen/common.h>
 #include <trafficgen/packet.h>
+#include <boost/chrono.hpp>
 #include "vbr_transmitter_impl.h"
 
 namespace gr {
@@ -37,6 +38,10 @@ namespace gr {
 												   int sequential_maximum,
 												   const char *logfile)
 			: gr::block("vbr_transmitter",gr::io_signature::make(0, 0, 0), gr::io_signature::make(0, 0, 0)),
+			  d_finished(false),
+			  d_trigger_start(true),
+			  d_trigger_stop(true),
+			  d_create_packets(true),
 			  d_use_acks(use_acks),
 			  d_content_type(content_type),
 			  d_constant_value(constant_value),
@@ -46,6 +51,8 @@ namespace gr {
 			  d_burst_interval(0),
 			  d_burst_duration(0),
 			  d_packet_interval(0){
+
+		  	open_logfile(logfile);
 
 		  	d_trigger_start_in_port   = pmt::mp(MP_TRIGGER_START_IN);
 			d_trigger_stop_in_port    = pmt::mp(MP_TRIGGER_STOP_IN);
@@ -119,7 +126,7 @@ namespace gr {
 
 		void vbr_transmitter_impl::set_packet_size(pmt::pmt_t msg){
 
-			double value = round(pmt::to_double(msg));
+			uint64_t value = round(pmt::to_double(msg));
 
 			// Packet must be at least 32 Bytes long...
 			d_packet_size = (value < PACKET_MINIMUM_SIZE_B) ? PACKET_MINIMUM_SIZE_B : value;
@@ -127,17 +134,63 @@ namespace gr {
 
 		void vbr_transmitter_impl::set_burst_interval(pmt::pmt_t msg){
 
-			d_burst_interval = pmt::to_double(msg);
+			d_burst_interval = (uint64_t)(pmt::to_double(msg) * 1000.0);
 		}
 
 		void vbr_transmitter_impl::set_burst_duration(pmt::pmt_t msg){
 
-			d_burst_duration = pmt::to_double(msg);
+			d_burst_duration = (uint64_t)(pmt::to_double(msg) * 1000.0);
 		}
 
 		void vbr_transmitter_impl::set_packet_interval(pmt::pmt_t msg){
 
-			d_packet_interval = pmt::to_double(msg);	
+			d_packet_interval = (uint64_t)(pmt::to_double(msg) * 1000.0);
+		}
+
+		void vbr_transmitter_impl::fill_payload(uint8_t *__payload, uint32_t __size){
+			
+			switch(d_content_type){
+
+				case CONTENT_CONSTANT: {
+
+					std::memset(__payload, d_constant_value, (__size * sizeof(uint8_t)));
+				}
+				break;
+
+				case CONTENT_SEQUENTIAL: {
+
+					uint32_t copied         = 0;
+					uint32_t amount_to_copy = 0;
+					uint32_t element_count  = (d_sequential_maximum - d_sequential_minimum + 1);
+					uint8_t  elements[element_count];
+
+					std::iota(elements, elements + element_count, d_sequential_minimum);
+
+					for (uint32_t i = 0; i < __size; i++){
+
+						amount_to_copy = (__size - copied);
+						amount_to_copy = amount_to_copy < element_count ? amount_to_copy : element_count;
+
+						std::memcpy(__payload + copied, &elements, amount_to_copy);
+
+						copied += amount_to_copy;
+					}
+				}
+				break;
+
+				default:
+				throw std::runtime_error("Undefined content type");
+			}
+		}
+
+		void vbr_transmitter_impl::open_logfile(const char *__filename){
+
+			d_logfile.open(__filename, std::ios::out | std::ios::app);
+
+			if (!d_logfile.is_open()){
+
+				throw std::runtime_error("Unable to open file");
+			}
 		}
 
 		bool vbr_transmitter_impl::start(){
@@ -163,10 +216,32 @@ namespace gr {
 
 		void vbr_transmitter_impl::run(){
 
+			boost::this_thread::disable_interruption di;
+
+			uint32_t   id = 0;
+			packet     *pk;
+			uint32_t   payload_length;
+			uint8_t    *payload;
+			pmt::pmt_t blob_packet;
+			uint32_t   stat_sent_packets       = 0;
+			uint64_t   stat_sent_bytes         = 0;
+			double     stat_average_throughput = 0;
+
+			boost::posix_time::time_duration time_diff;
+			boost::posix_time::ptime         start;
+			boost::posix_time::ptime         stop;
+
+			bool running_burst = false;
+			boost::posix_time::time_duration burst_duration;
+			boost::posix_time::ptime         burst_start;
+			boost::posix_time::ptime 		 now;
+
 			pmt::pmt_t request_packet_size     = pmt::from_long(VBR_PORT_PACKET_SIZE);
 			pmt::pmt_t request_burst_interval  = pmt::from_long(VBR_PORT_BURST_INTERVAL);
 			pmt::pmt_t request_burst_duration  = pmt::from_long(VBR_PORT_REQUEST_BURST_DURATION);
 			pmt::pmt_t request_packet_interval = pmt::from_long(VBR_PORT_REQUEST_PACKET_INTERVAL);
+
+			start = boost::posix_time::microsec_clock::local_time();
 
 			while(!d_finished){
 
@@ -175,14 +250,100 @@ namespace gr {
 				message_port_pub(d_request_out_port, request_burst_duration);
 				message_port_pub(d_request_out_port, request_packet_interval);
 
-				std::cout << d_packet_size << ";"
-						  << d_burst_interval << ";"
-						  << d_burst_duration << ";"
-						  << d_packet_interval << std::endl;
+				pk             = new packet(PACKET_HEADER, d_use_acks, id, d_packet_size);
+				payload_length = pk->get_payload_length();
+				payload        = new uint8_t[payload_length]; 
 
-				boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+				fill_payload(payload, payload_length);
+
+				pk->set_payload(payload, payload_length);
+
+				// IMPORTANT: if burst duration was set higher than burst interval, it shall be set 
+				// equal to burst interval...
+				burst_duration = (d_burst_duration > d_burst_interval) ? 
+									boost::posix_time::microseconds(d_burst_interval) :
+									boost::posix_time::microseconds(d_burst_duration);
+
+				running_burst  = true;
+				burst_start    = boost::posix_time::microsec_clock::local_time();
+
+				do {
+
+					pk->set_timestamp();
+					blob_packet = pk->get_blob();
+					message_port_pub(d_pdu_out_port, blob_packet);
+
+					stat_sent_packets++;
+					stat_sent_bytes += d_packet_size;
+
+					std::cout << "[TX]["    << pk->get_id() 
+							  << "][Size: " << pk->get_message_length() 
+							  << " B]"       << std::endl << std::flush;
+
+					boost::this_thread::sleep_for(boost::chrono::microseconds(d_packet_interval));
+
+					now = boost::posix_time::microsec_clock::local_time();
+
+					if ((now - burst_start) >= burst_duration){
+
+						running_burst = false;	
+
+					} else {
+
+						pk->generate_next();
+						id++;
+					}
+
+				} while (running_burst);
+
+				boost::this_thread::sleep_for(boost::chrono::microseconds(d_burst_interval));
+
+				if (!d_create_packets) {
+
+					stop = boost::posix_time::microsec_clock::local_time();
+
+					time_diff = stop - start;
+					stat_average_throughput = (((double)stat_sent_bytes * 8.0) /
+											   ((double)time_diff.total_milliseconds() / 1000.0));
+
+					d_logfile << "\n---- Trigger interruption ----\n" << std::flush;
+					d_logfile << "packets_sent;bytes_sent;tx_duration_ms;throughput\n" << std::flush;
+					d_logfile << stat_sent_packets << ";" 
+							  << stat_sent_bytes << ";" 
+							  << time_diff.total_milliseconds() << ";"
+							  << stat_average_throughput << "\n" 
+							  << std::flush;
+
+					boost::mutex::scoped_lock lock(d_mutex_condition);
+					d_run_packet_creation.wait(lock);
+					start = boost::posix_time::microsec_clock::local_time();
+
+					stat_sent_packets       = 0;
+					stat_sent_bytes         = 0;
+					stat_average_throughput = 0;
+
+				}
+
+				delete pk;
+				delete payload;
 
 				if (d_finished){
+
+					stop = boost::posix_time::microsec_clock::local_time();
+
+					time_diff = stop - start;
+					stat_average_throughput = (((double)stat_sent_bytes * 8.0) /
+											   ((double)time_diff.total_milliseconds() / 1000.0));
+
+					d_logfile << "\n---- Finished ----\n" << std::flush;
+					d_logfile << "packets_sent;bytes_sent;tx_duration_ms;throughput\n" << std::flush;
+					d_logfile << stat_sent_packets << ";" 
+							  << stat_sent_bytes << ";" 
+							  << time_diff.total_milliseconds() << ";"
+							  << stat_average_throughput << "\n" 
+							  << std::flush;
+
+					d_logfile.close();
 
 					return;
 				}
