@@ -12,7 +12,7 @@ namespace gr {
 
 		class generator_poisson_impl : public generator_poisson {
 			private:
-				trafficgen_vbr_ports_t d_vbr_port;
+				vbr_ports_t d_vbr_port;
 				double d_mean;
 				double d_multiplier;
 				pmt::pmt_t d_msg;
@@ -28,7 +28,7 @@ namespace gr {
 				> d_generator;
 
 			public:
-				generator_poisson_impl(trafficgen_vbr_ports_t vbr_port,
+				generator_poisson_impl(vbr_ports_t vbr_port,
 									   double mean,
 									   double multiplier);
 

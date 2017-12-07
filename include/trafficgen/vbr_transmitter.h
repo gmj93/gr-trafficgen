@@ -15,7 +15,7 @@ namespace gr {
 				virtual void open_logfile(const char *__filename) = 0;
 
 				static sptr make(bool use_acks,
-								 trafficgen_content_t content_type,
+								 content_t content_type,
 								 int constant_value,
 								 int sequential_minimum,
 								 int sequential_maximum,

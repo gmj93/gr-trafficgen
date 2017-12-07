@@ -11,7 +11,7 @@ namespace gr {
 
 		class generator_weibull_impl : public generator_weibull {
 			private:
-				trafficgen_vbr_ports_t d_vbr_port;
+				vbr_ports_t d_vbr_port;
 				double d_shape;
 				double d_scale;
 				double d_multiplier;
@@ -28,7 +28,7 @@ namespace gr {
 				> d_generator;
 
 			public:
-				generator_weibull_impl(trafficgen_vbr_ports_t vbr_port,
+				generator_weibull_impl(vbr_ports_t vbr_port,
 									   double shape,
 									   double scale,
 									   double multiplier);

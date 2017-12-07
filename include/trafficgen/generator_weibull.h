@@ -9,10 +9,11 @@ namespace gr {
 	namespace trafficgen {
 
 		class TRAFFICGEN_API generator_weibull : virtual public gr::block {
+			
 			public:
 				typedef boost::shared_ptr<generator_weibull> sptr;
 				
-				static sptr make(trafficgen_vbr_ports_t vbr_port,
+				static sptr make(vbr_ports_t vbr_port,
 								 double shape,
 								 double scale,
 								 double multiplier);

@@ -15,7 +15,7 @@ namespace gr {
 
 				virtual void set_value(double value) = 0;
 
-				static sptr make(trafficgen_vbr_ports_t vbr_port, double value);
+				static sptr make(vbr_ports_t vbr_port, double value);
 		};
 	} // namespace trafficgen
 } // namespace gr

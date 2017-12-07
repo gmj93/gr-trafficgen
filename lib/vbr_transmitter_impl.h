@@ -28,7 +28,7 @@ namespace gr {
 				bool d_trigger_start;
 				bool d_trigger_stop;
 				bool d_use_acks;
-				trafficgen_content_t d_content_type;
+				content_t d_content_type;
 				int d_constant_value;
 				int d_sequential_minimum;
 				int d_sequential_maximum;
@@ -52,7 +52,7 @@ namespace gr {
 
 			public:
 			vbr_transmitter_impl(bool use_acks,
-								 trafficgen_content_t content_type,
+								 content_t content_type,
 								 int constant_value,
 								 int sequential_minimum,
 								 int sequential_maximum,

@@ -10,12 +10,12 @@ namespace gr {
   	namespace trafficgen {
 
   		generator_constant::sptr
-  		generator_constant::make(trafficgen_vbr_ports_t vbr_port, double value){
+  		generator_constant::make(vbr_ports_t vbr_port, double value){
 
   			return gnuradio::get_initial_sptr (new generator_constant_impl(vbr_port, value));
 		}
 
-		generator_constant_impl::generator_constant_impl(trafficgen_vbr_ports_t vbr_port, double value)
+		generator_constant_impl::generator_constant_impl(vbr_ports_t vbr_port, double value)
 	  		: gr::block("generator_constant", gr::io_signature::make(0, 0, 0), gr::io_signature::make(0, 0, 0)),
 	  		  d_vbr_port(vbr_port),
 	  		  d_value(value){

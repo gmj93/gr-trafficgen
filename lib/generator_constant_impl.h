@@ -10,7 +10,7 @@ namespace gr {
 		class generator_constant_impl : public generator_constant {
 
 			private:
-				trafficgen_vbr_ports_t d_vbr_port;
+				vbr_ports_t d_vbr_port;
 				double d_value;
 
 				pmt::pmt_t d_msg;
@@ -18,7 +18,7 @@ namespace gr {
 				pmt::pmt_t d_value_out_port;
 
 			public:
-				generator_constant_impl(trafficgen_vbr_ports_t vbr_port, double value);
+				generator_constant_impl(vbr_ports_t vbr_port, double value);
 				~generator_constant_impl();
 
 				void set_value(double value);

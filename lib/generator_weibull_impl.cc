@@ -10,7 +10,7 @@ namespace gr {
 	namespace trafficgen {
 
 		generator_weibull::sptr
-		generator_weibull::make(trafficgen_vbr_ports_t vbr_port,
+		generator_weibull::make(vbr_ports_t vbr_port,
 								double shape,
 								double scale,
 								double multiplier){
@@ -19,7 +19,7 @@ namespace gr {
 				(new generator_weibull_impl(vbr_port, shape, scale, multiplier));
 		}
 
-		generator_weibull_impl::generator_weibull_impl(trafficgen_vbr_ports_t vbr_port,
+		generator_weibull_impl::generator_weibull_impl(vbr_ports_t vbr_port,
 													   double shape,
 													   double scale,
 													   double multiplier)

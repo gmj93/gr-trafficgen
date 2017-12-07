@@ -37,9 +37,9 @@ namespace gr {
 		cbr_transmitter::make (uint32_t packet_size,
 							   float packet_interval,
 							   bool use_acks,
-							   trafficgen_content_t content_type,
+							   content_t content_type,
 							   int constant_value,
-							   trafficgen_random_distribution_t distribution_type,
+							   distribution_t distribution_type,
 							   int distribution_min,
 							   int distribution_max,
 							   int distribution_mean,
@@ -71,9 +71,9 @@ namespace gr {
 		cbr_transmitter_impl::cbr_transmitter_impl(uint32_t packet_size,
 												   float packet_interval,
 												   bool use_acks,
-												   trafficgen_content_t content_type,
+												   content_t content_type,
 												   int constant_value,
-												   trafficgen_random_distribution_t distribution_type,
+												   distribution_t distribution_type,
 												   int distribution_min,
 												   int distribution_max,
 												   int distribution_mean,
@@ -147,7 +147,7 @@ namespace gr {
 			}
 		}
 
-		float cbr_transmitter_impl::get_random_value(trafficgen_random_distribution_t distribution){
+		float cbr_transmitter_impl::get_random_value(distribution_t distribution){
 
 			switch(distribution){
 				case DIST_UNIFORM:

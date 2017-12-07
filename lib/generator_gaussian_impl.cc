@@ -10,7 +10,7 @@ namespace gr {
 	namespace trafficgen {
 
 		generator_gaussian::sptr
-		generator_gaussian::make(trafficgen_vbr_ports_t vbr_port,
+		generator_gaussian::make(vbr_ports_t vbr_port,
 								 double mean,
 								 double std,
 								 double multiplier){
@@ -18,7 +18,7 @@ namespace gr {
 				(new generator_gaussian_impl(vbr_port, mean, std, multiplier));
 		}
 
-		generator_gaussian_impl::generator_gaussian_impl(trafficgen_vbr_ports_t vbr_port,
+		generator_gaussian_impl::generator_gaussian_impl(vbr_ports_t vbr_port,
 														 double mean,
 														 double std,
 														 double multiplier)

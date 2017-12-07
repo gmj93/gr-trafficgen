@@ -18,7 +18,6 @@
  * Boston, MA 02110-1301, USA.
  */
 
-
 #ifndef INCLUDED_TRAFFICGEN_TIME_TRIGGER_H
 #define INCLUDED_TRAFFICGEN_TIME_TRIGGER_H
 
@@ -45,14 +44,6 @@ namespace gr {
 	  			/* Reset time it sleeps after sending a "False" trigger message */
 	  			virtual void set_inactive_time(float inactive_time) = 0;
 
-				/*!
-				 * \brief Return a shared_ptr to a new instance of trafficgen::time_trigger.
-				 *
-				 * To avoid accidental use of raw pointers, trafficgen::time_trigger's
-				 * constructor is in a private implementation
-				 * class. trafficgen::time_trigger::make is the public interface for
-				 * creating new instances.
-				 */
 				static sptr make(bool initial_state, float active_time, float inactive_time);
 		};
 	} // namespace trafficgen

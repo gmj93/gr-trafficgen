@@ -10,7 +10,7 @@ namespace gr {
 	namespace trafficgen {
 
 		generator_uniform::sptr
-		generator_uniform::make(trafficgen_vbr_ports_t vbr_port,
+		generator_uniform::make(vbr_ports_t vbr_port,
 								double minimum,
 								double maximum,
 								double multiplier){
@@ -19,7 +19,7 @@ namespace gr {
 				(new generator_uniform_impl(vbr_port, minimum, maximum, multiplier));
 		}
 
-		generator_uniform_impl::generator_uniform_impl(trafficgen_vbr_ports_t vbr_port,
+		generator_uniform_impl::generator_uniform_impl(vbr_ports_t vbr_port,
 													   double minimum,
 													   double maximum,
 													   double multiplier)

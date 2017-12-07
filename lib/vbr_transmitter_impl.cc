@@ -13,7 +13,7 @@ namespace gr {
 
 		vbr_transmitter::sptr
 		vbr_transmitter::make(bool use_acks,
-							  trafficgen_content_t content_type,
+							  content_t content_type,
 							  int constant_value,
 							  int sequential_minimum,
 							  int sequential_maximum,
@@ -32,7 +32,7 @@ namespace gr {
 		}
 
 		vbr_transmitter_impl::vbr_transmitter_impl(bool use_acks,
-												   trafficgen_content_t content_type,
+												   content_t content_type,
 												   int constant_value,
 												   int sequential_minimum,
 												   int sequential_maximum,

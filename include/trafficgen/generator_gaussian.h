@@ -13,7 +13,7 @@ namespace gr {
 	 		public:
 				typedef boost::shared_ptr<generator_gaussian> sptr;
 
-				static sptr make(trafficgen_vbr_ports_t vbr_port,
+				static sptr make(vbr_ports_t vbr_port,
 								 double mean,
 								 double std,
 								 double multiplier);

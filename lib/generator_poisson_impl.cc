@@ -10,14 +10,14 @@ namespace gr {
 	namespace trafficgen {
 
 		generator_poisson::sptr
-		generator_poisson::make(trafficgen_vbr_ports_t vbr_port,
+		generator_poisson::make(vbr_ports_t vbr_port,
 								double mean,
 								double multiplier){
 			return gnuradio::get_initial_sptr
 				(new generator_poisson_impl(vbr_port, mean, multiplier));
 		}
 
-		generator_poisson_impl::generator_poisson_impl(trafficgen_vbr_ports_t vbr_port,
+		generator_poisson_impl::generator_poisson_impl(vbr_ports_t vbr_port,
 													   double mean,
 													   double multiplier)
 			: gr::block("generator_poisson", gr::io_signature::make(0, 0, 0), gr::io_signature::make(0, 0, 0)),

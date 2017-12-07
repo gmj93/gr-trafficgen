@@ -11,7 +11,7 @@ namespace gr {
 
 		class generator_uniform_impl : public generator_uniform {
 			private:
-				trafficgen_vbr_ports_t d_vbr_port;
+				vbr_ports_t d_vbr_port;
 				double d_minimum;
 				double d_maximum;
 				double d_multiplier;
@@ -28,7 +28,7 @@ namespace gr {
 				> d_generator;
 
 			public:
-				generator_uniform_impl(trafficgen_vbr_ports_t vbr_port,
+				generator_uniform_impl(vbr_ports_t vbr_port,
 									   double minimum,
 									   double maximum,
 									   double multiplier);
