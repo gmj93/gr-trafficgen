@@ -2,7 +2,7 @@
 <block>
 	<name>Generator (Uniform)</name>
 	<key>trafficgen_generator_uniform</key>
-	<category>[trafficgen]</category>
+	<category>Traffic Generator</category>
 	<import>import trafficgen</import>
 	<make>trafficgen.generator_uniform($vbr_port, $minimum, $maximum, $multiplier)</make>
 	<param>

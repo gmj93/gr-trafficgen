@@ -2,7 +2,7 @@
 <block>
 	<name>Generator (Poisson)</name>
 	<key>trafficgen_generator_poisson</key>
-	<category>[trafficgen]</category>
+	<category>Traffic Generator</category>
 	<import>import trafficgen</import>
 	<make>trafficgen.generator_poisson($vbr_port, $mean, $multiplier)</make>
 	<param>

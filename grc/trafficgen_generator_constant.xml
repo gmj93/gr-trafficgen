@@ -2,7 +2,7 @@
 <block>
 	<name>Generator (Constant)</name>
 	<key>trafficgen_generator_constant</key>
-	<category>[trafficgen]</category>
+	<category>Traffic Generator</category>
 	<import>import trafficgen</import>
 	<make>trafficgen.generator_constant($vbr_port, $value)</make>
 	<callback>set_value($value)</callback>

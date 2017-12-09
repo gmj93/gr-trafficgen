@@ -2,7 +2,7 @@
 <block>
 	<name>Time Trigger</name>
 	<key>trafficgen_time_trigger</key>
-	<category>[trafficgen]</category>
+	<category>Traffic Generator</category>
 	<import>import trafficgen</import>
 	<make>trafficgen.time_trigger($initial_state, $active_time, $inactive_time)</make>
 	<callback>set_active_time($active_time)</callback>

@@ -2,7 +2,7 @@
 <block>
 	<name>Generator (Gaussian)</name>
 	<key>trafficgen_generator_gaussian</key>
-	<category>[trafficgen]</category>
+	<category>Traffic Generator</category>
 	<import>import trafficgen</import>
 	<make>trafficgen.generator_gaussian($vbr_port, $mean, $std, $multiplier)</make>
 	<param>

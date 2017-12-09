@@ -2,7 +2,7 @@
 <block>
 	<name>Receiver</name>
 	<key>trafficgen_receiver</key>
-	<category>[trafficgen]</category>
+	<category>Traffic Generator</category>
 	<import>import trafficgen</import>
 	<make>trafficgen.receiver($logfile)</make>
 	<param>

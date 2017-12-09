@@ -2,7 +2,7 @@
 <block>
 	<name>Generator (Weibull)</name>
 	<key>trafficgen_generator_weibull</key>
-	<category>[trafficgen]</category>
+	<category>Traffic Generator</category>
 	<import>import trafficgen</import>
 	<make>trafficgen.generator_weibull($vbr_port, $shape, $scale, $multiplier)</make>
 	<param>

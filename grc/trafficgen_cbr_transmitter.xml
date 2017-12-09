@@ -2,7 +2,7 @@
 <block>
 	<name>CBR Transmitter</name>
 	<key>trafficgen_cbr_transmitter</key>
-	<category>[trafficgen]</category>
+	<category>Traffic Generator</category>
 	<import>import trafficgen</import>
 	<make>trafficgen.cbr_transmitter($packet_size,
 		$packet_interval,

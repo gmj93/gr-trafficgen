@@ -2,7 +2,7 @@
 <block>
 	<name>User Trigger</name>
 	<key>trafficgen_user_trigger</key>
-	<category>[trafficgen]</category>
+	<category>Traffic Generator</category>
 	<import>import trafficgen</import>
 	<make>trafficgen.user_trigger($state)</make>
 	<callback>set_state($state)</callback>

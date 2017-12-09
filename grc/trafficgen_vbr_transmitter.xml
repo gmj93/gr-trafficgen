@@ -2,7 +2,7 @@
 <block>
 	<name>VBR Transmitter</name>
 	<key>trafficgen_vbr_transmitter</key>
-	<category>[trafficgen]</category>
+	<category>Traffic Generator</category>
 	<import>import trafficgen</import>
 	<make>trafficgen.vbr_transmitter($use_acks,
 		$content_type,
