@@ -258,11 +258,7 @@ namespace gr {
 
 				pk->set_payload(payload, payload_length);
 
-				// IMPORTANT: if burst duration was set higher than burst interval, it shall be set 
-				// equal to burst interval...
-				burst_duration = (d_burst_duration > d_burst_interval) ? 
-									boost::posix_time::microseconds(d_burst_interval) :
-									boost::posix_time::microseconds(d_burst_duration);
+				burst_duration = boost::posix_time::microseconds(d_burst_duration);
 
 				running_burst  = true;
 				burst_start    = boost::posix_time::microsec_clock::local_time();
