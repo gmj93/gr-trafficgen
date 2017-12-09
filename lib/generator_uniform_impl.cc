@@ -38,9 +38,9 @@ namespace gr {
 			set_msg_handler(d_request_in_port,
 							boost::bind(&generator_uniform_impl::publish_value, this, _1));
 
-			boost::uniform_int<> ud(d_minimum, d_maximum);
-			d_generator = boost::shared_ptr<boost::variate_generator<boost::mt19937, boost::uniform_int<>>>(
-				new boost::variate_generator <boost::mt19937, boost::uniform_int<>>(d_rng, ud));
+			boost::uniform_real<> ud(d_minimum, d_maximum);
+			d_generator = boost::shared_ptr<boost::variate_generator<boost::mt19937, boost::uniform_real<>>>(
+				new boost::variate_generator <boost::mt19937, boost::uniform_real<>>(d_rng, ud));
 
 		}
 

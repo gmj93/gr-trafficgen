@@ -4,7 +4,7 @@
 #include <trafficgen/generator_uniform.h>
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/mersenne_twister.hpp>
-#include <boost/random/uniform_int.hpp>
+#include <boost/random/uniform_real.hpp>
 
 namespace gr {
 	namespace trafficgen {
@@ -23,7 +23,7 @@ namespace gr {
 
 				boost::shared_ptr<
 					boost::variate_generator <
-						boost::mt19937, boost::uniform_int<>
+						boost::mt19937, boost::uniform_real<>
 					>
 				> d_generator;
 
