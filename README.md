@@ -1,6 +1,6 @@
 # gr-trafficgen 
 
-####Traffic generation blocks for GNU Radio  
+#### Traffic generation blocks for GNU Radio  
 
 This project contains blocks for generating traffic in GNURadio applications. Users can choose to generate Constant Bit Rate traffic (using the CBR Transmitter), or Variable Bit Rate traffic (using the VBR Transmitter). Other components include: blocks for number generation following probabilistic distributions (Poisson, Weibull, Uniform), trigger blocks (user defined and timer) and a Receiver block.  
 ## Dependencies  
