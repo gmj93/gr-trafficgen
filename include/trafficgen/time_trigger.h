@@ -1,6 +1,7 @@
 /* -*- c++ -*- */
 /* 
- * Copyright 2017 <+YOU OR YOUR COMPANY+>.
+ * Copyright 2017 Gilson Miranda Jr <junior.kdm@gmail.com>
+ * Copyright 2017 Matheus H. N. Nunes <mhnnunes@dcc.ufmg.br>
  * 
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
